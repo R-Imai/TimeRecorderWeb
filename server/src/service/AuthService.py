@@ -9,7 +9,7 @@ from ..repository import connection
 
 from ..model import AuthModel as model
 
-from ..exception import IllegalArgumentException, AlreadyExistExeption, AuthenticationException
+from ..exception import IllegalArgumentException, AlreadyExistExeption, AuthenticationException, NotFoundException
 
 
 class AuthService:
@@ -41,7 +41,7 @@ class AuthService:
                 conn.commit()
         except Exception as e:
             conn.rollback()
-            raise Exception(e)
+            raise e
         finally:
             conn.close()
 
@@ -61,7 +61,7 @@ class AuthService:
                 conn.commit()
         except Exception as e:
             conn.rollback()
-            raise Exception(e)
+            raise e
         finally:
             conn.close()
         return token
@@ -81,10 +81,24 @@ class AuthService:
                 conn.commit()
         except Exception as e:
             conn.rollback()
-            raise Exception(e)
+            raise e
         finally:
             conn.close()
         return user_cd
+
+    def get_user_info(self, user_cd) -> model.Master:
+        try:
+            conn = connection.mk_connection()
+            with conn.cursor() as cur:
+                user_info = self.repository.get_user_master(cur, user_cd)
+                if user_info is None:
+                    raise NotFoundException("ユーザ情報を取得できませんでした。")
+        except Exception as e:
+            conn.rollback()
+            raise e
+        finally:
+            conn.close()
+        return user_info
 
     def logout(self, token:str):
         try:
@@ -94,6 +108,6 @@ class AuthService:
                 conn.commit()
         except Exception as e:
             conn.rollback()
-            raise Exception(e)
+            raise e
         finally:
             conn.close()

@@ -34,7 +34,7 @@ class AuthRepository:
         res = cur.fetchone()
         if res is None:
             return None
-        return model.Master(user_cd = res[0], name = res[1], image = res[2])
+        return model.Master(user_cd = res[0], name = res[1], image = res[2].tobytes() if res[2] is not None else None)
 
     def get_user_auth(self, cur, user_cd:str) -> str:
         cur.execute(self.sql_get_user_auth, (user_cd,))

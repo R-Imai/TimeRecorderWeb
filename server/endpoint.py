@@ -18,6 +18,7 @@ from src.exception import RecorderException, AuthenticationException
 
 app = FastAPI()
 origins = [
+    "http://localhost:3000",
     "http://127.0.0.1",
     "http://192.168.1.20"
     "http://192.168.1.18"
@@ -81,6 +82,24 @@ def user_register(user_info: auth_model.RegisterMasterModel):
             status_code=500,
             detail="予期せぬエラーが発生しました。",
         )
+
+@app.get("/api/user", response_model=auth_model.Master, tags=["Auth"])
+def get_user(TOKEN: Optional[str] = Cookie(None)):
+    user_cd = __auth_token(TOKEN)
+    try:
+        user_info = auth_service.get_user_info(user_cd)
+    except RecorderException as e:
+        raise HTTPException(
+            status_code=e.status_code,
+            detail=str(e),
+        )
+    except Exception as e1:
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=500,
+            detail="予期せぬエラーが発生しました。",
+        )
+    return __mk_responce_json(user_info)
 
 @app.post("/api/login", tags=["Auth"])
 def login(login_info: auth_model.LoginModel, response: Response):
