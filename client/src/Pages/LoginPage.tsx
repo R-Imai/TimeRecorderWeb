@@ -44,7 +44,8 @@ class LoginForm extends React.Component<RouteComponentProps , State> {
     });
   };
 
-  async onClickLogin() {
+  async onClickLogin(e: React.MouseEvent<HTMLButtonElement>) {
+    e.preventDefault();
     const id = this.state.id;
     const pass = sha256(this.state.pass);
     this.setState({
@@ -101,7 +102,7 @@ class LoginForm extends React.Component<RouteComponentProps , State> {
               />
             </div>
             <button
-              type="button"
+              type="submit"
               className="login-button"
               onClick={this.onClickLogin}
             >
