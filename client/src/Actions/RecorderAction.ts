@@ -1,7 +1,7 @@
 import axios, {AxiosResponse} from 'axios';
 import API from './ApiBase';
 
-type SubjectType = {
+export type SubjectType = {
   name: string,
   color: string,
   sort_val: number,
@@ -9,12 +9,12 @@ type SubjectType = {
   subject_id: string,
 }
 
-type StartTaskType= {
+export type StartTaskType= {
   task_subject: string;
   task_name: string;
 };
 
-type StartTaskInfoType= {
+export type StartTaskInfoType= {
   start_time: Date;
 } & StartTaskType
 
