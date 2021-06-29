@@ -4,7 +4,7 @@ import datetime
 
 class TaskDetail(BaseModel):
     task_subject: str
-    task_name: str = ""
+    task_name: Optional[str] = ""
 
 class RunningTask(TaskDetail):
     start_time: datetime.datetime

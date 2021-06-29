@@ -59,7 +59,7 @@ def __auth_token(token: str):
     return user_cd
 
 # ルート
-@app.get("/", response_model=app_model.AppInfo)
+@app.get("/api/", response_model=app_model.AppInfo)
 def root():
     info = app_model.AppInfo(version="0.0.1")
     info_jsonvalue = jsonable_encoder(info)
@@ -141,7 +141,7 @@ def logout(response: Response, TOKEN: Optional[str] = Cookie(None)):
 #### ==== Time Recorder Web ==== ####
 
 # 日報計算
-@app.get("/calc/daily", response_model=List[tr_model.SummaryData], tags=["TimeRecorder"])
+@app.get("/api/calc/daily", response_model=List[tr_model.SummaryData], tags=["TimeRecorder"])
 def calc_daily(date: date, TOKEN: Optional[str] = Cookie(None)):
     user_cd = __auth_token(TOKEN)
     try:
@@ -160,7 +160,7 @@ def calc_daily(date: date, TOKEN: Optional[str] = Cookie(None)):
     return __mk_responce_json(summary_data)
 
 # タスク開始
-@app.post("/record/running", response_model=tr_model.RunningTask, tags=["TimeRecorder"])
+@app.post("/api/record/running", response_model=tr_model.RunningTask, tags=["TimeRecorder"])
 def job_start(post_param: tr_model.TaskDetail, TOKEN: Optional[str] = Cookie(None)):
     user_cd = __auth_token(TOKEN)
     try:
@@ -179,7 +179,7 @@ def job_start(post_param: tr_model.TaskDetail, TOKEN: Optional[str] = Cookie(Non
     return __mk_responce_json(start_info)
 
 # タスクキャンセル
-@app.delete("/record/running", tags=["TimeRecorder"])
+@app.delete("/api/record/running", tags=["TimeRecorder"])
 def job_cancel(TOKEN: Optional[str] = Cookie(None)):
     user_cd = __auth_token(TOKEN)
     try:
@@ -197,7 +197,7 @@ def job_cancel(TOKEN: Optional[str] = Cookie(None)):
         )
 
 # 実行中タスク取得
-@app.get("/record/running", response_model=tr_model.RunningTask, tags=["TimeRecorder"])
+@app.get("/api/record/running", response_model=tr_model.RunningTask, tags=["TimeRecorder"])
 def job_get(TOKEN: Optional[str] = Cookie(None)):
     user_cd = __auth_token(TOKEN)
     try:
@@ -216,7 +216,7 @@ def job_get(TOKEN: Optional[str] = Cookie(None)):
     return __mk_responce_json(record)
 
 # 実行中タスク編集
-@app.put("/record/running", tags=["TimeRecorder"])
+@app.put("/api/record/running", tags=["TimeRecorder"])
 def job_edit(post_param: tr_model.RunningTask, TOKEN: Optional[str] = Cookie(None)):
     user_cd = __auth_token(TOKEN)
     try:
@@ -234,7 +234,7 @@ def job_edit(post_param: tr_model.RunningTask, TOKEN: Optional[str] = Cookie(Non
         )
 
 # タスク完了
-@app.post("/record/end", tags=["TimeRecorder"])
+@app.post("/api/record/end", tags=["TimeRecorder"])
 def job_end(TOKEN: Optional[str] = Cookie(None)):
     user_cd = __auth_token(TOKEN)
     try:
@@ -252,7 +252,7 @@ def job_end(TOKEN: Optional[str] = Cookie(None)):
         )
 
 # 今日のタスク履歴取得
-@app.get("/record/today", response_model=List[tr_model.RecordTask], tags=["TimeRecorder"])
+@app.get("/api/record/today", response_model=List[tr_model.RecordTask], tags=["TimeRecorder"])
 def record_get(TOKEN: Optional[str] = Cookie(None)):
     user_cd = __auth_token(TOKEN)
     try:
@@ -271,7 +271,7 @@ def record_get(TOKEN: Optional[str] = Cookie(None)):
     return __mk_responce_json(records)
 
 # タスク修正
-@app.put("/record/task", tags=["TimeRecorder"])
+@app.put("/api/record/task", tags=["TimeRecorder"])
 def record_edit(post_param: tr_model.RecordTask, TOKEN: Optional[str] = Cookie(None)):
     user_cd = __auth_token(TOKEN)
     try:
@@ -289,7 +289,7 @@ def record_edit(post_param: tr_model.RecordTask, TOKEN: Optional[str] = Cookie(N
         )
 
 # 画像保存
-@app.post("/graph", response_model=tr_model.ResponceGraphSummary, tags=["TimeRecorder"])
+@app.post("/api/graph", response_model=tr_model.ResponceGraphSummary, tags=["TimeRecorder"])
 def graph_save(target:date, TOKEN: Optional[str] = Cookie(None)):
     user_cd = __auth_token(TOKEN)
     try:
@@ -308,7 +308,7 @@ def graph_save(target:date, TOKEN: Optional[str] = Cookie(None)):
     return __mk_responce_json(tr_model.ResponceGraphSummary(path = path, data = data))
 
 # カテゴリ全取得
-@app.get("/setting/subject", response_model=List[tr_model.SubjectConfigData], tags=["TimeRecorder"])
+@app.get("/api/setting/subject", response_model=List[tr_model.SubjectConfigData], tags=["TimeRecorder"])
 def subject_config(TOKEN: Optional[str] = Cookie(None)):
     user_cd = __auth_token(TOKEN)
     try:
@@ -327,7 +327,7 @@ def subject_config(TOKEN: Optional[str] = Cookie(None)):
     return __mk_responce_json(subject_data)
 
 # 有効なカテゴリ全取得
-@app.get("/setting/subject/active", response_model=List[tr_model.SubjectConfigData], tags=["TimeRecorder"])
+@app.get("/api/setting/subject/active", response_model=List[tr_model.SubjectConfigData], tags=["TimeRecorder"])
 def subject_config(TOKEN: Optional[str] = Cookie(None)):
     user_cd = __auth_token(TOKEN)
     try:
@@ -346,7 +346,7 @@ def subject_config(TOKEN: Optional[str] = Cookie(None)):
     return __mk_responce_json(subject_data)
 
 # カテゴリ登録
-@app.post("/setting/subject", tags=["TimeRecorder"])
+@app.post("/api/setting/subject", tags=["TimeRecorder"])
 def add_subject(post_param: tr_model.RegistrationSubject, TOKEN: Optional[str] = Cookie(None)):
     user_cd = __auth_token(TOKEN)
     try:
@@ -364,7 +364,7 @@ def add_subject(post_param: tr_model.RegistrationSubject, TOKEN: Optional[str] =
         )
 
 # カテゴリ更新
-@app.put("/setting/subject", tags=["TimeRecorder"])
+@app.put("/api/setting/subject", tags=["TimeRecorder"])
 def subject_config(data: tr_model.SubjectConfigData, TOKEN: Optional[str] = Cookie(None)):
     user_cd = __auth_token(TOKEN)
     try :
