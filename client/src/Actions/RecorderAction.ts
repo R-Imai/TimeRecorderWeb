@@ -18,6 +18,13 @@ export type StartTaskInfoType= {
   start_time: Date;
 } & StartTaskType
 
+type ErrResponseValue = {
+  detail: string
+}
+
+type ErrResponse = {
+  response: AxiosResponse<ErrResponseValue>
+}
 
 export async function getActiveSubjects() {
   const responce = await axios.get<SubjectType[]>(`${API.UrlBase}${API.Recorder.activeSubject}`).catch((e: ErrResponse) => {throw new Error(e.response.data.detail)})
