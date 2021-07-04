@@ -3,12 +3,29 @@ import { withRouter, RouteComponentProps } from 'react-router';
 import {Link} from 'react-router-dom';
 
 import Indicator from '../Components/Indicator'
-import TaskInputForm from '../Components/TaskInputForm'
+import TaskStartInputForm from '../Components/TaskStartInputForm'
 import RunningTask from '../Components/RunningTask'
+import ConfirmDialog from '../Components/ConfirmDialog'
+import RunningTaskEditDialog from '../Components/RunningTaskEditDialog'
+import RecordTaskEditDialog from '../Components/RecordTaskEditDialog'
+import TaskRecords from '../Components/TaskRecords'
 
 import {getUserInfo} from '../Actions/AuthAction'
-import {getActiveSubjects, taskStart, getRunningTask, StartTaskInfoType} from '../Actions/RecorderAction'
+import {getActiveSubjects, taskStart, getRunningTask, taskEnd, taskEdit, taskCancel, recordToday, recordEdit, StartTaskInfoType, TaskRecordType} from '../Actions/RecorderAction'
 import logo from '../Image/logo.svg';
+
+interface EditTaskType extends startTaskType {
+  startTime: string;
+  startHour: string;
+  startMin: string;
+}
+
+interface EditRecordType extends EditTaskType {
+  taskId: string;
+  endTime: string;
+  endHour: string;
+  endMin: string;
+}
 
 type State = {
   userInfo: {
@@ -17,9 +34,15 @@ type State = {
     image?: string;
   } | null;
   inputTaskInfo: startTaskType;
+  editTaskInfo: EditTaskType;
+  editRecordInfo: EditRecordType;
   activeSubjectName: string[];
+  todaysTask: todaysTaskType[];
   showIndicator: boolean;
   runningTask: runningTaskType | null;
+  showConfirmDialog: boolean;
+  showTaskEditDialog: boolean;
+  showRecordEditDialog: boolean;
 }
 
 class HomePage extends React.Component<RouteComponentProps, State> {
@@ -32,13 +55,47 @@ class HomePage extends React.Component<RouteComponentProps, State> {
         taskSubject: '',
         taskName: '',
       },
+      editTaskInfo: {
+        taskSubject: '',
+        taskName: '',
+        startTime: '',
+        startHour: '',
+        startMin: '',
+      },
+      editRecordInfo: {
+        taskId: '',
+        taskSubject: '',
+        taskName: '',
+        startTime: '',
+        startHour: '',
+        startMin: '',
+        endTime: '',
+        endHour: '',
+        endMin: '',
+      },
       activeSubjectName: [],
+      todaysTask: [],
       runningTask: null,
+      showConfirmDialog: false,
+      showTaskEditDialog: false,
+      showRecordEditDialog: false,
     };
+    this.reload = this.reload.bind(this);
     this.taskStart = this.taskStart.bind(this);
+    this.taskEnd = this.taskEnd.bind(this);
+    this.taskCancel = this.taskCancel.bind(this);
+    this.taskCancelClick = this.taskCancelClick.bind(this);
+    this.taskEditClick = this.taskEditClick.bind(this);
+    this.taskEdit = this.taskEdit.bind(this);
+    this.recordRowClick = this.recordRowClick.bind(this);
+    this.recordEdit = this.recordEdit.bind(this);
   }
 
   async componentDidMount() {
+    await this.reload();
+  }
+
+  async reload() {
     this.setState({
       showIndicator: true
     })
@@ -46,17 +103,20 @@ class HomePage extends React.Component<RouteComponentProps, State> {
       getUserInfo(),
       getActiveSubjects(),
       getRunningTask(),
+      recordToday(),
     ]);
     // TODO: エラーハンドリング
     const userInfo = response[0];
     const activeSubjects = response[1];
     const runningTask = this.convertRunningTaskResponce(response[2]);
+    const todaysRecord = response[3].map((v) => {return this.convertTodaysTaskResponce(v)});
 
     this.setState({
       userInfo: userInfo,
       activeSubjectName: activeSubjects.map((v) => {return v.name}),
       showIndicator: false,
       runningTask: runningTask,
+      todaysTask: todaysRecord,
     })
   }
 
@@ -68,11 +128,24 @@ class HomePage extends React.Component<RouteComponentProps, State> {
     } : null;
   }
 
+  convertTodaysTaskResponce(responce: TaskRecordType) {
+    return {
+      taskId: responce.task_id,
+      taskSubject: responce.task_subject,
+      taskName: responce.task_name,
+      startTime: responce.start_time,
+      endTime: responce.end_time,
+    };
+  }
+
   async taskStart() {
     if (this.state.inputTaskInfo.taskSubject === '') {
       // TODO: エラー表示する
       return
     }
+    this.setState({
+      showIndicator: true
+    })
     const requestParam = {
       task_subject: this.state.inputTaskInfo.taskSubject,
       task_name: this.state.inputTaskInfo.taskName,
@@ -81,14 +154,115 @@ class HomePage extends React.Component<RouteComponentProps, State> {
     const startTask = this.convertRunningTaskResponce(responce);
     this.setState({
       runningTask: startTask,
+      showIndicator: false,
+      inputTaskInfo: {
+        taskSubject: '',
+        taskName: '',
+      }
     });
+  }
+
+  async taskEnd() {
+    this.setState({
+      showIndicator: true
+    })
+    await taskEnd();
+    await this.reload();
+  }
+
+  taskCancelClick() {
+    this.setState({
+      showConfirmDialog: true,
+    })
+  }
+
+  async taskCancel() {
+    this.setState({
+      showIndicator: true,
+      showConfirmDialog: false,
+    })
+    await taskCancel();
+    await this.reload();
+  }
+
+  taskEditClick() {
+    const startTime = new Date(Date.parse(this.state.runningTask.startTime));
+    const h = startTime.getHours();
+    const m = startTime.getMinutes();
+    const editInfo = Object.assign({}, this.state.runningTask, {startHour: h, startMin: m});
+    this.setState({
+      showTaskEditDialog: true,
+      editTaskInfo: editInfo,
+    })
+  }
+
+  async taskEdit() {
+    if (this.state.editTaskInfo.taskSubject === '' || this.state.editTaskInfo.startHour === '' || this.state.editTaskInfo.startMin === '') {
+      return;
+    }
+    this.setState({
+      showIndicator: true,
+      showTaskEditDialog: false,
+    })
+    const startTime = new Date(Date.parse(this.state.editTaskInfo.startTime));
+    startTime.setHours(this.state.editTaskInfo.startHour);
+    startTime.setMinutes(this.state.editTaskInfo.startMin);
+    const startTimeStr = `${startTime.getFullYear()}-${startTime.getMonth() + 1}-${startTime.getDate()} ${startTime.getHours()}:${startTime.getMinutes()}`
+    const requestParam = {
+      task_subject: this.state.editTaskInfo.taskSubject,
+      task_name: this.state.editTaskInfo.taskName,
+      start_time: startTimeStr,
+    }
+    await taskEdit(requestParam);
+    await this.reload();
+  }
+
+  recordRowClick(task: todaysTaskType) {
+    const startTime = new Date(Date.parse(task.startTime));
+    const startHour = startTime.getHours();
+    const startMin = startTime.getMinutes();
+    const endTime = new Date(Date.parse(task.endTime));
+    const endHour = endTime.getHours();
+    const endMin = endTime.getMinutes();
+    const editInfo = Object.assign({}, task, {startHour: startHour, startMin: startMin, endHour: endHour, endMin: endMin});
+    this.setState({
+      showRecordEditDialog: true,
+      editRecordInfo: editInfo,
+    })
+  }
+
+  async recordEdit() {
+    if (this.state.editRecordInfo.taskSubject === '' || this.state.editRecordInfo.startHour === '' || this.state.editRecordInfo.startMin === '' || this.state.editRecordInfo.endHour === '' || this.state.editRecordInfo.endMin === '') {
+      return;
+    }
+    this.setState({
+      showIndicator: true,
+      showRecordEditDialog: false,
+    })
+    const startTime = new Date(Date.parse(this.state.editRecordInfo.startTime));
+    startTime.setHours(this.state.editRecordInfo.startHour);
+    startTime.setMinutes(this.state.editRecordInfo.startMin);
+    const startTimeStr = `${startTime.getFullYear()}-${startTime.getMonth() + 1}-${startTime.getDate()} ${startTime.getHours()}:${startTime.getMinutes()}`
+    const endTime = new Date(Date.parse(this.state.editRecordInfo.endTime));
+    endTime.setHours(this.state.editRecordInfo.endHour);
+    endTime.setMinutes(this.state.editRecordInfo.endMin);
+    const endTimeStr = `${endTime.getFullYear()}-${endTime.getMonth() + 1}-${endTime.getDate()} ${endTime.getHours()}:${endTime.getMinutes()}`
+    const requestParam = {
+      task_id: this.state.editRecordInfo.taskId,
+      task_subject: this.state.editRecordInfo.taskSubject,
+      task_name: this.state.editRecordInfo.taskName,
+      start_time: startTimeStr,
+      end_time: endTimeStr,
+    }
+    await recordEdit(requestParam);
+    await this.reload();
   }
 
   render() {
     const txt = this.state.userInfo === null ? '' : `ようこそ ${this.state.userInfo.name} さん`
 
     const inputSpaceElement = this.state.runningTask === null ? (
-      <TaskInputForm
+      <TaskStartInputForm
         taskSubject={this.state.inputTaskInfo.taskSubject}
         taskName={this.state.inputTaskInfo.taskName}
         suggestList={this.state.activeSubjectName}
@@ -99,16 +273,62 @@ class HomePage extends React.Component<RouteComponentProps, State> {
     ) : (
       <RunningTask
         runningTask={this.state.runningTask}
-        onCancel={() => {console.log("TODO: cancel")}}
-        onEnd={() => {console.log("TODO: end")}}
+        onCancel={this.taskCancelClick}
+        onEdit={this.taskEditClick}
+        onEnd={this.taskEnd}
       />
     )
+
+    const confirmDialogElement = this.state.showConfirmDialog ? (
+      <ConfirmDialog message="タスクをキャンセルします。よろしいですか。" onCancel={() => {this.setState({showConfirmDialog: false})}} onSubmit={this.taskCancel} />
+    ) : '';
+
+    const runningTaskEditDialogElement = this.state.showTaskEditDialog ? (
+      <RunningTaskEditDialog
+        taskSubject={this.state.editTaskInfo.taskSubject}
+        taskName={this.state.editTaskInfo.taskName}
+        startHour={this.state.editTaskInfo.startHour}
+        startMin={this.state.editTaskInfo.startMin}
+        suggestList={this.state.activeSubjectName}
+        onChangeSubject={(e: React.ChangeEvent<HTMLInputElement>) => {this.setState({editTaskInfo: Object.assign({}, this.state.editTaskInfo, {taskSubject: e.target.value})})}}
+        onChangeName={(e: React.ChangeEvent<HTMLInputElement>) => {this.setState({editTaskInfo: Object.assign({}, this.state.editTaskInfo, {taskName: e.target.value})})}}
+        onChangeHour={(e: React.ChangeEvent<HTMLInputElement>) => {this.setState({editTaskInfo: Object.assign({}, this.state.editTaskInfo, {startHour: e.target.value})})}}
+        onChangeMin={(e: React.ChangeEvent<HTMLInputElement>) => {this.setState({editTaskInfo: Object.assign({}, this.state.editTaskInfo, {startMin: e.target.value})})}}
+        onCancel={() => {this.setState({showTaskEditDialog: false})}}
+        onSubmit={this.taskEdit}
+      />
+    ) : '';
+
+    const RecordTaskEditDialogElement = this.state.showRecordEditDialog ? (
+      <RecordTaskEditDialog
+        taskSubject={this.state.editRecordInfo.taskSubject}
+        taskName={this.state.editRecordInfo.taskName}
+        startHour={this.state.editRecordInfo.startHour}
+        startMin={this.state.editRecordInfo.startMin}
+        endHour={this.state.editRecordInfo.endHour}
+        endMin={this.state.editRecordInfo.endMin}
+        suggestList={this.state.activeSubjectName}
+        onChangeSubject={(e: React.ChangeEvent<HTMLInputElement>) => {this.setState({editRecordInfo: Object.assign({}, this.state.editRecordInfo, {taskSubject: e.target.value})})}}
+        onChangeName={(e: React.ChangeEvent<HTMLInputElement>) => {this.setState({editRecordInfo: Object.assign({}, this.state.editRecordInfo, {taskName: e.target.value})})}}
+        onChangeStartHour={(e: React.ChangeEvent<HTMLInputElement>) => {this.setState({editRecordInfo: Object.assign({}, this.state.editRecordInfo, {startHour: e.target.value})})}}
+        onChangeStartMin={(e: React.ChangeEvent<HTMLInputElement>) => {this.setState({editRecordInfo: Object.assign({}, this.state.editRecordInfo, {startMin: e.target.value})})}}
+        onChangeEndHour={(e: React.ChangeEvent<HTMLInputElement>) => {this.setState({editRecordInfo: Object.assign({}, this.state.editRecordInfo, {endHour: e.target.value})})}}
+        onChangeEndMin={(e: React.ChangeEvent<HTMLInputElement>) => {this.setState({editRecordInfo: Object.assign({}, this.state.editRecordInfo, {endMin: e.target.value})})}}
+        onCancel={() => {this.setState({showRecordEditDialog: false})}}
+        onSubmit={this.recordEdit}
+      />
+    ) : '';
 
     return (
       <div id="main-page" className="indicator-parent">
         <h1><img src={logo} className="logo" alt="logo" />業務履歴登録</h1>
         <div>{txt}</div>
         {inputSpaceElement}
+        {confirmDialogElement}
+        <TaskRecords todaysTask={this.state.todaysTask} onClick={this.recordRowClick}/>
+
+        {runningTaskEditDialogElement}
+        {RecordTaskEditDialogElement}
         <Indicator show={this.state.showIndicator} />
       </div>
     )

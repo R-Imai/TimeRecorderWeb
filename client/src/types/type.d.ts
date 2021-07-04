@@ -4,5 +4,10 @@ interface startTaskType {
 }
 
 interface runningTaskType extends startTaskType {
-  startTime: Date,
+  startTime: string,
+}
+
+interface todaysTaskType extends runningTaskType {
+  taskId: string,
+  endTime: string,
 }
