@@ -36,7 +36,8 @@ class TimeRecorderRepository:
                 task_record
             WHERE user_cd = %(user_cd)s
                 AND %(start_time)s <= start_time
-                AND end_time <= %(end_time)s;
+                AND end_time <= %(end_time)s
+            ORDER BY start_time ASC;
             """
         self.sql_update_task_record = """
             UPDATE task_record
