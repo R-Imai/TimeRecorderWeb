@@ -16,7 +16,6 @@ type Props = {
   onChangeStartMin: (e: React.ChangeEvent<HTMLInputElement>) => void,
   onChangeEndHour: (e: React.ChangeEvent<HTMLInputElement>) => void,
   onChangeEndMin: (e: React.ChangeEvent<HTMLInputElement>) => void,
-  onChangeMin: (e: React.ChangeEvent<HTMLInputElement>) => void,
   onCancel: () => void,
   onSubmit: () => void,
 }

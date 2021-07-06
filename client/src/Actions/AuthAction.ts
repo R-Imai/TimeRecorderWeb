@@ -1,4 +1,4 @@
-import axios, {AxiosResponse} from 'axios';
+import axios from 'axios';
 import API from './ApiBase';
 
 axios.defaults.withCredentials = true;
@@ -19,16 +19,8 @@ type RegisterUserInfo = {
   password: string;
 } & userInfo
 
-type ErrResponseValue = {
-  detail: string
-}
-
-type ErrResponse = {
-  response: AxiosResponse<ErrResponseValue>
-}
-
 export async function login(id: string, pass: string) {
-  await axios.post<null>(`${API.UrlBase}${API.Auth.login}`, {user_cd: id, password: pass}).catch((e: ErrResponse) => {throw new Error(e.response.data.detail)})
+  await axios.post<null>(`${API.UrlBase}${API.Auth.login}`, {user_cd: id, password: pass}).catch((e) => {throw e})
 }
 
 export async function logout() {
@@ -37,17 +29,17 @@ export async function logout() {
 
 export async function register(userInfo: RegisterUserInfo) {
   await axios.post<null>(`${API.UrlBase}${API.Auth.user}`, userInfo)
-    .catch((e: ErrResponse) => {
+    .catch((e) => {
       console.error(e);
-      throw new Error(e.response.data.detail);
+      throw e;
     })
 }
 
 export async function getUserInfo() {
   const response = await axios.get<userInfo>(`${API.UrlBase}${API.Auth.user}`)
-    .catch((e: ErrResponse) => {
+    .catch((e) => {
       console.error(e);
-      throw new Error(e.response.data.detail);
+      throw e;
     })
   return response.data
 }
@@ -56,6 +48,6 @@ export async function getUserInfo() {
 //   const responce = await axios.post<null>(`${API.UrlBase}${API.Auth.passwordUpdate}`, passwordInfo, {
 //     headers: {
 //       'my-token': token
-//     }}).catch((e: ErrResponse) => {throw new Error(e.response.data.detail)});
+//     }}).catch((e: ApiError) => {throw new Error(e.response.data.detail)});
 //   return responce;
 // }

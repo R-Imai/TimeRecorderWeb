@@ -1,3 +1,13 @@
+import axios, {AxiosError} from 'axios';
+
+export type ApiErrorData = {
+  detail: string
+}
+
+export const isApiErrorData = (e: any): e is AxiosError<ApiErrorData> => {
+  return axios.isAxiosError(e) && !!e.response && e.response.data.detail;
+}
+
 export const API = {
   UrlBase: "",
   Auth: {

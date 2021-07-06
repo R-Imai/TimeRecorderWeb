@@ -27,11 +27,17 @@ const TaskRecords: React.FC<Props> = (props: Props) => {
     )
   });
 
+  const mainElem = props.todaysTask.length !== 0 ? (
+    <ul>
+      {taskList}
+    </ul>
+  ):(
+    <div className="not-exist">本日の業務履歴はまだありません。</div>
+  );
+
   return (
     <div className="taskRecords">
-      <ul>
-        {taskList}
-      </ul>
+      {mainElem}
     </div>
   );
 }

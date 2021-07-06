@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { sha256 } from 'js-sha256';
 import logo from '../Image/logo.svg';
 
+import {isApiErrorData} from '../Actions/ApiBase';
 import {login} from '../Actions/AuthAction'
 import Message from '../Components/Message'
 import Indicator from '../Components/Indicator'
@@ -51,17 +52,36 @@ class LoginForm extends React.Component<RouteComponentProps , State> {
     this.setState({
       showIndicator: true
     })
-    await login(id, pass).catch((e: Error) => {
-      console.error(e.message);
+    try {
+      await login(id, pass);
       this.setState({
-        isError: true,
-        errMsg: e.message
+        showIndicator: false
       })
-    });
-    this.setState({
-      showIndicator: false
-    })
-    // this.props.history.push('/home');
+      this.props.history.push('/home');
+    } catch (e) {
+      if (isApiErrorData(e)) {
+        console.error(e.response?.data.detail);
+        this.setState({
+          isError: true,
+          errMsg: e.response?.data.detail ? e.response?.data.detail: 'エラーが発生しました',
+          showIndicator: false,
+        });
+      } else if (e instanceof Error) {
+        console.error(e.message);
+        this.setState({
+          isError: true,
+          errMsg: e.message,
+          showIndicator: false,
+        });
+      } else {
+        console.error(e.message);
+        this.setState({
+          isError: true,
+          errMsg: 'エラーが発生しました',
+          showIndicator: false,
+        });
+      }
+    }
   }
 
   render() {
