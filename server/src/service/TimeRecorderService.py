@@ -33,6 +33,8 @@ class TimeRecorderService:
 
 
     def __calc_summary_data(self, records: List[model.RecordTask]) -> List[model.SummaryData]:
+        if len(records) == 0:
+            return []
         df = pd.DataFrame(list(map(lambda r: vars(r), records)))
         df["passed_time"] = df["end_time"] - df["start_time"]
         group = df.groupby(["task_name", "task_subject"])
