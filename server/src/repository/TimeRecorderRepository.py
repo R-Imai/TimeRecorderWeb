@@ -112,6 +112,20 @@ class TimeRecorderRepository:
                 AND %(start_time)s <= start_time
                 AND end_time <= %(end_time)s;
             """
+        self.sql_get_task_subject_between_sort_val = """
+            SELECT
+                subject_id,
+                name,
+                color,
+                sort_val,
+                is_active
+            FROM
+                task_subject_config
+            WHERE user_cd = %(user_cd)s
+            AND %(start_sort)s <= sort_val
+            AND sort_val <= %(end_sort)s
+            ORDER BY sort_val ASC
+            """
 
     def get_running_task(self, cur, user_cd: str) -> model.RunningTask:
         cur.execute(self.sql_get_running_task, (user_cd,))
@@ -230,3 +244,13 @@ class TimeRecorderRepository:
         cur.execute(self.sql_get_task_records_join_color, query_param)
         rows = cur.fetchall()
         return list(map(lambda x: model.RecordTaskJoinColor(task_id=x[0], start_time=x[1], end_time=x[2], task_subject=x[3], task_name=x[4], color=x[5]), rows))
+
+    def get_task_subject_between_sort_val(self, cur, user_cd:str, start_sort: int, end_sort: int) -> List[model.SubjectConfigData]:
+        query_param = dict(
+            user_cd = user_cd,
+            start_sort = start_sort,
+            end_sort = end_sort
+        )
+        cur.execute(self.sql_get_task_subject_between_sort_val, query_param)
+        rows = cur.fetchall()
+        return list(map(lambda x: model.SubjectConfigData(subject_id=x[0], name=x[1], color=x[2], sort_val=x[3], is_active=x[4]), rows))

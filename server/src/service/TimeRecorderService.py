@@ -29,7 +29,7 @@ class TimeRecorderService:
     def __timedelta2str(self, td: timedelta) -> str:
         hours, minsec = divmod(td.total_seconds(), 3600)
         min, sec = divmod(minsec, 60)
-        return f"{int(hours)}h{int(min)}m"
+        return f"{int(hours)}h{int(min)}m" if int(hours) != 0 else f"{int(min)}m"
 
 
     def __calc_summary_data(self, records: List[model.RecordTask]) -> List[model.SummaryData]:
@@ -37,7 +37,7 @@ class TimeRecorderService:
             return []
         df = pd.DataFrame(list(map(lambda r: vars(r), records)))
         df["passed_time"] = df["end_time"] - df["start_time"]
-        group = df.groupby(["task_name", "task_subject"])
+        group = df.groupby(["task_subject", "task_name"])
         summary_df = group.sum()[["passed_time"]]
         ret_data = [model.SummaryData(task_subject=index[0], task_name=index[1], passed_second=row.passed_time.total_seconds(), passed_time_str=self.__timedelta2str(row.passed_time)) for index, row in summary_df.iterrows()]
         return ret_data
@@ -250,9 +250,17 @@ class TimeRecorderService:
                 res = self.repository.get_task_subject_by_id(cur, subj_data.subject_id)
                 if res is None:
                     raise NotFoundException("該当レコードがありませんでした。")
-                subj_user_cd, _ = res
+                subj_user_cd, current_subj = res
                 if subj_user_cd != user_cd:
                     raise IllegalArgumentException("不正な変更です。")
+                if current_subj.sort_val != subj_data.sort_val:
+                    min_val = min([subj_data.sort_val, current_subj.sort_val]) if current_subj.sort_val > subj_data.sort_val else min([subj_data.sort_val, current_subj.sort_val]) + 1
+                    max_val = max([subj_data.sort_val, current_subj.sort_val]) if current_subj.sort_val < subj_data.sort_val else max([subj_data.sort_val, current_subj.sort_val]) - 1
+                    diff = 1 if current_subj.sort_val > subj_data.sort_val else -1
+                    subj_list = self.repository.get_task_subject_between_sort_val(cur, user_cd, min_val, max_val)
+                    for s in subj_list:
+                        s.sort_val += diff
+                        self.repository.update_task_subject(cur, s)  
                 self.repository.update_task_subject(cur, subj_data)
                 conn.commit()
         except Exception as e:
