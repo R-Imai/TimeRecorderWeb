@@ -3,6 +3,7 @@ import { withRouter, RouteComponentProps } from 'react-router';
 import {Link} from 'react-router-dom';
 
 import {isApiErrorData} from '../Actions/ApiBase';
+import Message from '../Components/Message'
 import Indicator from '../Components/Indicator'
 import TaskStartInputForm from '../Components/TaskStartInputForm'
 import RunningTask from '../Components/RunningTask'
@@ -10,6 +11,7 @@ import ConfirmDialog from '../Components/ConfirmDialog'
 import RunningTaskEditDialog from '../Components/RunningTaskEditDialog'
 import RecordTaskEditDialog from '../Components/RecordTaskEditDialog'
 import TaskRecords from '../Components/TaskRecords'
+import RecordSummary from '../Components/RecordSummary'
 
 import {getUserInfo} from '../Actions/AuthAction'
 import {getActiveSubjects, taskStart, getRunningTask, taskEnd, taskEdit, taskCancel, recordToday, recordEdit, calcToday, StartTaskInfoType, TaskRecordType, CalcResultType} from '../Actions/RecorderAction'
@@ -45,6 +47,8 @@ type State = {
   showTaskEditDialog: boolean;
   showRecordEditDialog: boolean;
   errMsg: string;
+  recordSummary: recordSummaryType[];
+  showCopyMsg: boolean;
 }
 
 class HomePage extends React.Component<RouteComponentProps, State> {
@@ -82,6 +86,8 @@ class HomePage extends React.Component<RouteComponentProps, State> {
       showTaskEditDialog: false,
       showRecordEditDialog: false,
       errMsg: '',
+      recordSummary: [],
+      showCopyMsg: false,
     };
     this.reload = this.reload.bind(this);
     this.taskStart = this.taskStart.bind(this);
@@ -114,15 +120,14 @@ class HomePage extends React.Component<RouteComponentProps, State> {
       const activeSubjects = response[1];
       const runningTask = this.convertRunningTaskResponce(response[2]);
       const todaysRecord = response[3].map((v) => {return this.convertTodaysTaskResponce(v)});
-      const calcData = response[4].map((v) => {return this.convertCalcResultResponce(v)});
-
-      console.log(calcData);
+      const recordSummary = response[4].map((v) => {return this.convertCalcResultResponce(v)});
 
       this.setState({
         userInfo: userInfo,
         activeSubjectName: activeSubjects.map((v) => {return v.name}),
         runningTask: runningTask,
         todaysTask: todaysRecord,
+        recordSummary: recordSummary,
       })
     } catch (e) {
       if (isApiErrorData(e)) {
@@ -308,7 +313,7 @@ class HomePage extends React.Component<RouteComponentProps, State> {
   }
 
   render() {
-    const txt = this.state.userInfo === null ? '' : `ようこそ ${this.state.userInfo.name} さん`
+    const txt = this.state.userInfo === null ? '' : `${this.state.userInfo.name} さん`
 
     const inputSpaceElement = this.state.runningTask === null ? (
       <TaskStartInputForm
@@ -371,12 +376,36 @@ class HomePage extends React.Component<RouteComponentProps, State> {
     return (
       <div id="main-page" className="indicator-parent">
         <h1><img src={logo} className="logo" alt="logo" />業務履歴登録</h1>
-        <div>{txt}</div>
+        <div className="header-menu">
+          <div>
+            {txt}
+          </div>
+          <div>
+            <Link to="/setting/subject">
+              <div className="icon-setting" title="作業ジャンル設定画面へ"/>
+            </Link>
+          </div>
+        </div>
         {inputSpaceElement}
         {confirmDialogElement}
 
         <h2>本日の業務記録</h2>
-        <TaskRecords todaysTask={this.state.todaysTask} onClick={this.recordRowClick}/>
+        <div className="record-space">
+          <div className="record-history">
+            <h3>業務履歴</h3>
+            <TaskRecords todaysTask={this.state.todaysTask} onClick={this.recordRowClick}/>
+          </div>
+          <div className="record-summary">
+            <h3>集計結果</h3>
+            {this.state.showCopyMsg ? <Message type="info" value="コピーしました" /> : ''}
+            <RecordSummary summaryData={this.state.recordSummary} onCopySuccess={() => {
+              this.setState({showCopyMsg: true});
+              setTimeout(() => {
+                this.setState({showCopyMsg: false});
+              }, 3000);
+            }}/>
+          </div>
+        </div>
 
         {runningTaskEditDialogElement}
         {RecordTaskEditDialogElement}

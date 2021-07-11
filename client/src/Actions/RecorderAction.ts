@@ -72,3 +72,12 @@ export async function calcToday() {
   const responce = await axios.get<CalcResultType[]>(`${API.UrlBase}${API.Recorder.dailyCalc}`, {params: {date: dateStr}}).catch((e) => {throw e})
   return responce.data;
 }
+
+export async function getSubject() {
+  const responce = await axios.get<SubjectType[]>(`${API.UrlBase}${API.Recorder.subject}`).catch((e) => {throw e})
+  return responce.data;
+}
+
+export async function updateSubject(subjctInfo: SubjectType) {
+  await axios.put<null>(`${API.UrlBase}${API.Recorder.subject}`, subjctInfo).catch((e) => {throw e})
+}

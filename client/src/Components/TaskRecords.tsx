@@ -19,7 +19,7 @@ const TaskRecords: React.FC<Props> = (props: Props) => {
 
   const taskList = props.todaysTask.map((task) => {
     return (
-      <li className="record" key={task.taskId} onClick={() => {props.onClick(task)}}>
+      <li key={task.taskId} onClick={() => {props.onClick(task)}}>
         <span className="time">{displayTime(task.startTime)} - {displayTime(task.endTime)}</span>
         <span className="subject">{task.taskSubject}</span>
         <span className="name">{task.taskName}</span>
@@ -32,11 +32,11 @@ const TaskRecords: React.FC<Props> = (props: Props) => {
       {taskList}
     </ul>
   ):(
-    <div className="not-exist">本日の業務履歴はまだありません。</div>
+    <div className="message mt-10">本日の業務履歴はまだありません。</div>
   );
 
   return (
-    <div className="taskRecords">
+    <div className="task-records">
       {mainElem}
     </div>
   );
