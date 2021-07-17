@@ -380,7 +380,10 @@ class HomePage extends React.Component<RouteComponentProps, State> {
           <div>
             {txt}
           </div>
-          <div>
+          <div className="icon-space">
+            <Link to="/calc">
+              <div className="icon-graph" title="集計画面へ"/>
+            </Link>
             <Link to="/setting/subject">
               <div className="icon-setting" title="作業ジャンル設定画面へ"/>
             </Link>

@@ -235,9 +235,12 @@ class SubjectSettingPage extends React.Component<RouteComponentProps , State> {
         <h1><img src={logo} className="logo" alt="logo" />作業ジャンル設定</h1>
         <div className="header-menu">
           <div>タスクの大まかなジャンルを定義することで、記録時に候補として表示します。</div>
-          <div>
+          <div className="icon-space">
             <Link to="/home">
               <div className="icon-home" title="記録画面へ"/>
+            </Link>
+            <Link to="/calc">
+              <div className="icon-graph" title="集計画面へ"/>
             </Link>
           </div>
         </div>

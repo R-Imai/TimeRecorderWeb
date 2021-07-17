@@ -1,7 +1,8 @@
 import os
 import uuid
+import glob
 import pandas as pd
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 from datetime import date
 from datetime import datetime
 from datetime import timedelta
@@ -272,9 +273,9 @@ class TimeRecorderService:
     def save_month_graph(self, user_cd:str, target:date) -> Tuple[str, List[model.GraphSummaryData]]:
         start_time = datetime(year = target.year, month = target.month, day = 1, hour = DAY_CHANGE_HOUR, minute = 0, second = 0, microsecond = 0)
         end_time = (start_time + relativedelta(months = 1)).replace(day = 1, hour = DAY_CHANGE_HOUR, minute = 0, second = 0, microsecond = 0)
-        return self.save_graph(user_cd, start_time, end_time)
+        return self.save_graph(user_cd, start_time, end_time, "month_graph")
 
-    def save_graph(self, user_cd:str, start_time:datetime, end_time:datetime) -> Tuple[str, List[model.GraphSummaryData]]:
+    def save_graph(self, user_cd:str, start_time:datetime, end_time:datetime, filename:Optional[str]) -> Tuple[str, List[model.GraphSummaryData]]:
         try:
             conn = connection.mk_connection()
             with conn.cursor() as cur:
@@ -286,11 +287,15 @@ class TimeRecorderService:
         finally:
             conn.close()
         summary_data = self.__calc_graph_data(records)
-        filename = f"{start_time.year}_{start_time.month}_{start_time.day}-{end_time.year}_{end_time.month}_{end_time.day}.png"
+        if filename is None:
+            filename = f"{start_time.year}_{start_time.month}_{start_time.day}-{end_time.year}_{end_time.month}_{end_time.day}"
         save_dir = f"{STORAGE_PATH}/graph/{user_cd}"
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
-        save_path = f"{save_dir}/{filename}"
+        for path in glob.glob(f"{save_dir}/{filename}*.png"):
+            os.remove(path)
+        id = str(uuid.uuid4())[-12:]
+        save_path = f"{save_dir}/{filename}-{id}.png"
         self.__plot_data(summary_data, save_path)
         return (save_path, summary_data)
 

@@ -118,10 +118,42 @@ button {
   }
 }
 
+.icon-graph {
+  position: relative;
+  height: 2rem;
+  width: 2rem;
+  background-image: url("./Image/icooon/graph.svg");
+  &::after {
+    background: #8abeb1;
+    content: '';
+    position: absolute;
+    z-index: -1;
+    left: -0.2rem;
+    top: -0.2rem;
+    height: calc(100% + 0.4rem);
+    width: calc(100% + 0.4rem);
+    transform: scale(0, 0);
+    border-radius: 0.5rem;
+    transition: transform 0.2s;
+  }
+  &:hover {
+    background-image: url("./Image/icooon/graph_active.svg");
+    &::after {
+      transform: scale(1, 1);
+    }
+  }
+}
+
 .header-menu {
   display: flex;
   justify-content: space-between;
   padding: 0.5rem 1rem;
+  .icon-space {
+    display: flex;
+    a {
+      margin: 0 0.5rem;
+    }
+  }
 }
 
 #login-page {
@@ -736,13 +768,6 @@ button {
 }
 
 #main-page {
-  h1 {
-    .logo {
-      vertical-align: middle;
-      height: 2rem;
-      margin-right: 0.5rem
-    }
-  }
   .record-space {
     margin: 0 1rem;
     @media screen and (min-width: 1200px) {
@@ -756,7 +781,7 @@ button {
   }
 }
 
-#subject-setting-page {
+#main-page, #calc-page, #subject-setting-page {
   h1 {
     .logo {
       vertical-align: middle;
@@ -1067,6 +1092,14 @@ button {
       &::after {
         transform: scale(0, 0);
       }
+    }
+  }
+}
+
+#calc-page {
+  .image-space {
+    img {
+      width: 100%;
     }
   }
 }

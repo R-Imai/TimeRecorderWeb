@@ -33,6 +33,18 @@ export type CalcResultType = {
   passed_time_str: string;
 }
 
+export type CalcGraphType = {
+  path: string,
+  data: [
+    {
+      task_subject: string,
+      passed_second: number,
+      passed_time_str: string,
+      color: string
+    }
+  ]
+}
+
 export async function getActiveSubjects() {
   const responce = await axios.get<SubjectType[]>(`${API.UrlBase}${API.Recorder.activeSubject}`).catch((e) => {throw e})
   return responce.data;
@@ -91,4 +103,11 @@ export async function deleteSubject(id: String) {
 
 export async function addSubject(subjctInfo: AddSubjectType) {
   await axios.post<null>(`${API.UrlBase}${API.Recorder.subject}`, subjctInfo).catch((e) => {throw e})
+}
+
+export async function calcMonthGraph() {
+  const now = new Date();
+  const dateStr = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
+  const responce = await axios.post<CalcGraphType>(`${API.UrlBase}${API.Recorder.graph}`, {}, {params: {target: dateStr}}).catch((e) => {throw e})
+  return responce.data;
 }
