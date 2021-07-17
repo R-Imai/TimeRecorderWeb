@@ -380,3 +380,21 @@ def subject_config(data: tr_model.SubjectConfigData, TOKEN: Optional[str] = Cook
             status_code=500,
             detail="予期せぬエラーが発生しました。",
         )
+
+# カテゴリ削除
+@app.delete("/api/setting/subject", tags=["TimeRecorder"])
+def delete_subject(subject_id: str, TOKEN: Optional[str] = Cookie(None)):
+    user_cd = __auth_token(TOKEN)
+    try :
+        recorder_service.delete_subject(user_cd, subject_id)
+    except RecorderException as e:
+        raise HTTPException(
+            status_code=e.status_code,
+            detail=str(e),
+        )
+    except Exception as e1:
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=500,
+            detail="予期せぬエラーが発生しました。",
+        )

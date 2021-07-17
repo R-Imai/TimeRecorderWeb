@@ -293,3 +293,26 @@ class TimeRecorderService:
         save_path = f"{save_dir}/{filename}"
         self.__plot_data(summary_data, save_path)
         return (save_path, summary_data)
+
+    def delete_subject(self, user_cd:str, subject_id:str):
+        try:
+            conn = connection.mk_connection()
+            with conn.cursor() as cur:
+                res = self.repository.get_task_subject_by_id(cur, subject_id)
+                if res is None:
+                    raise NotFoundException("該当レコードがありませんでした。")
+                subj_user_cd, current_subj = res
+                if subj_user_cd != user_cd:
+                    raise IllegalArgumentException("不正な変更です。")
+                subj_list = self.repository.get_task_subject_between_sort_val(cur, user_cd, current_subj.sort_val + 1)
+                
+                records = self.repository.delete_subject(cur, user_cd, subject_id)
+                for s in subj_list:
+                    s.sort_val -= 1
+                    self.repository.update_task_subject(cur, s)  
+                conn.commit()
+        except Exception as e:
+            conn.rollback()
+            raise e
+        finally:
+            conn.close()
