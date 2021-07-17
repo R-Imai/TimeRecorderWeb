@@ -1,13 +1,16 @@
 import axios from 'axios';
 import API from './ApiBase';
 
-export type SubjectType = {
+export type AddSubjectType = {
   name: string,
   color: string,
   sort_val: number,
-  is_active: boolean,
-  subject_id: string,
+  is_active: boolean
 }
+
+export type SubjectType = {
+  subject_id: string,
+} & AddSubjectType;
 
 export type StartTaskType = {
   task_subject: string;
@@ -80,4 +83,12 @@ export async function getSubject() {
 
 export async function updateSubject(subjctInfo: SubjectType) {
   await axios.put<null>(`${API.UrlBase}${API.Recorder.subject}`, subjctInfo).catch((e) => {throw e})
+}
+
+export async function deleteSubject(id: String) {
+  await axios.delete<null>(`${API.UrlBase}${API.Recorder.subject}`, {params: {subject_id: id}}).catch((e) => {throw e})
+}
+
+export async function addSubject(subjctInfo: AddSubjectType) {
+  await axios.post<null>(`${API.UrlBase}${API.Recorder.subject}`, subjctInfo).catch((e) => {throw e})
 }

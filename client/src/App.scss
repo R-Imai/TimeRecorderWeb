@@ -92,6 +92,32 @@ button {
   }
 }
 
+.icon-home {
+  position: relative;
+  height: 2rem;
+  width: 2rem;
+  background-image: url("./Image/icooon/home.svg");
+  &::after {
+    background: #8abeb1;
+    content: '';
+    position: absolute;
+    z-index: -1;
+    left: -0.2rem;
+    top: -0.2rem;
+    height: calc(100% + 0.4rem);
+    width: calc(100% + 0.4rem);
+    transform: scale(0, 0);
+    border-radius: 0.5rem;
+    transition: transform 0.2s;
+  }
+  &:hover {
+    background-image: url("./Image/icooon/home_active.svg");
+    &::after {
+      transform: scale(1, 1);
+    }
+  }
+}
+
 .header-menu {
   display: flex;
   justify-content: space-between;
@@ -1054,13 +1080,13 @@ button {
       list-style: none;
       li {
         margin: 0.2rem 0;
-        padding: 0 0.5rem;
+        padding-left: 0.5rem;
         color: #222222;
         background-color: #c4c4c4;
         border-left: solid 1rem #fafafa;
         font-size: 1.2rem;
         height: 2rem;
-        cursor: pointer;
+        cursor: move;
         display: flex;
         .swith-btn {
           display: inline-block;
@@ -1104,26 +1130,137 @@ button {
         }
         .subject-name {
           display: inline-block;
-          width: calc(100% - 8.9rem);
+          width: calc(100% - 11.9rem);
           padding-left: 1rem;
           user-select: none;
           -webkit-user-select: none;
         }
         .color {
           width: 2.5rem;
+          padding-right: 0.5rem;
+          margin: 0 0 0 auto;
           border: none;
           background: none;
+          cursor: pointer;
+        }
+        .delete-btn {
+          display: inline-block;
+          width: 2.5rem;
+          height: 100%;
+          padding: 0 0.5rem;
+          position: relative;
+          color: #fafafa;
+          background: none;
+          font-size: 1.2rem;
+          border-radius: 0.5rem;
+          z-index: 1;
+          &::before {
+            background: #b9193c;
+            content: '';
+            position: absolute;
+            z-index: -2;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 100%;
+          }
+          &::after {
+            background: #ffaebf;
+            content: '';
+            position: absolute;
+            z-index: -1;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 100%;
+            transform: scale(0, 0);
+            transition: transform 0.2s;
+          }
+          &:hover{
+            color: #222222;
+            &::after {
+              transform: scale(1, 1);
+            }
+          }
         }
         &:hover  {
           background-color: #dadada;
         }
       }
     }
-    .acvive {
+    .active {
       background-color: #c5ffec;
     }
     .deactive {
       background-color: #ececec;
+    }
+  }
+  .subject-add-form {
+    background-color: #e1fff5;
+    margin: 0 1rem;
+    padding: 0.5rem;
+    height: 1.5rem;
+    .subjct-name {
+      height: calc(100% - 0.4rem);
+      width: calc(100% - 10rem);
+      padding: 0.2rem 0.5rem;
+      vertical-align: top;
+      font-size: 1.2rem;
+    }
+    .subjct-color {
+      width: 2.5rem;
+      height: 100%;
+      margin: 0;
+      margin-left: 1rem;
+      padding: 0;
+      border: none;
+      background-color: #fafafa;
+      vertical-align: top;
+      cursor: pointer;
+    }
+    button {
+      display: inline-block;
+      position: relative;
+      padding: 0 1rem;
+      width: 4rem;
+      height: 100%;
+      color: #fafafa;
+      border-radius: 0.3rem;
+      margin-left: 1rem;
+      vertical-align: top;
+      background: none;
+      z-index: 1;
+      &::before {
+        background: #3b7fe4;
+        content: '';
+        position: absolute;
+        z-index: -2;
+        border-radius: 0.3rem;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 100%;
+      }
+      &::after {
+        background: #7cb0ff;
+        content: '';
+        position: absolute;
+        z-index: -1;
+        border-radius: 0.3rem;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 100%;
+        transform: scale(0, 1);
+        transition: transform 0.2s;
+        transform-origin: left;
+      }
+      &:hover{
+        color: #222222;
+        &::after {
+          transform: scale(1, 1);
+        }
+      }
     }
   }
 }

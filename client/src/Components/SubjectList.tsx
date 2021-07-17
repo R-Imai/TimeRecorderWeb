@@ -5,11 +5,11 @@ type Props = {
   subjectList: subjectType[],
   id: string,
   className?: string,
-  isShowDeleteBtn?: boolean,
   onChange: (oldIndex:number, newIndex:number) => void,
   onStateChange: (subjectInfo:subjectType) => void,
   onSubmitColor: (subjectInfo:subjectType) => void,
   onChangeColor: (subjectInfo:subjectType, color:string) => void,
+  onClickDelete?: (subjectInfo:subjectType) => void,
 }
 
 const SubjectList: React.FC<Props>  = (props: Props) => {
@@ -38,6 +38,14 @@ const SubjectList: React.FC<Props>  = (props: Props) => {
     });
   }, [props]);
 
+  const onClickDelete = (subj: subjectType) => {
+    if (!props.onClickDelete) {
+      return () => {};
+    }
+    const func = props.onClickDelete;
+    return () => {func(subj)}
+  }
+
   const subjectListElem = props.subjectList.map((subj, i) => {
     const bgStyle = {
       borderLeftColor: subj.color,
@@ -64,10 +72,11 @@ const SubjectList: React.FC<Props>  = (props: Props) => {
           onChange={(e) => {props.onChangeColor(subj, e.target.value)}}
           onBlur={() => {props.onSubmitColor(subj)}}
         />
-        { props.isShowDeleteBtn?
-          <button className="delete-btn">
-            x
-          </button> : ''
+        { props.onClickDelete ? (
+            <button onClick={onClickDelete(subj)} className="delete-btn">
+              x
+            </button>
+          ) : ''
         }
       </li>
     )

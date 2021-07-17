@@ -6,8 +6,9 @@ import logo from '../Image/logo.svg';
 import Indicator from '../Components/Indicator'
 import {isApiErrorData} from '../Actions/ApiBase';
 import {getUserInfo} from '../Actions/AuthAction'
-import {getSubject, updateSubject, SubjectType} from '../Actions/RecorderAction';
+import {getSubject, updateSubject, deleteSubject, addSubject, SubjectType} from '../Actions/RecorderAction';
 
+import ConfirmDialog from '../Components/ConfirmDialog'
 import SubjectList from '../Components/SubjectList';
 
 type State = {
@@ -16,8 +17,15 @@ type State = {
     name: string;
     image?: string;
   } | null;
+  addSubjectInfo: {
+    name: string,
+    color: string,
+    sortVal: number,
+    isActive: true,
+  },
   subjectList: subjectType[],
   showIndicator: boolean,
+  deleteSubjectInfo: subjectType | null,
 }
 
 class SubjectSettingPage extends React.Component<RouteComponentProps , State> {
@@ -27,6 +35,13 @@ class SubjectSettingPage extends React.Component<RouteComponentProps , State> {
       userInfo: null,
       subjectList: [],
       showIndicator: false,
+      deleteSubjectInfo: null,
+      addSubjectInfo: {
+        name: '',
+        color: '#000000',
+        sortVal: 0,
+        isActive: true,
+      }
     };
     this.convertSubjectListResponce = this.convertSubjectListResponce.bind(this);
     this.onMoveSubject = this.onMoveSubject.bind(this);
@@ -35,6 +50,8 @@ class SubjectSettingPage extends React.Component<RouteComponentProps , State> {
     this.onChangeState = this.onChangeState.bind(this);
     this.onChangeColor = this.onChangeColor.bind(this);
     this.onSubmitColor = this.onSubmitColor.bind(this);
+    this.subjctDelete = this.subjctDelete.bind(this);
+    this.onSubjectAdd = this.onSubjectAdd.bind(this);
   }
 
   async componentDidMount() {
@@ -52,10 +69,13 @@ class SubjectSettingPage extends React.Component<RouteComponentProps , State> {
       ]);
       const userInfo = response[0];
       const subjectList = response[1].map((v) => {return this.convertSubjectListResponce(v)});
+      const addSubjectInfo = Object.assign({}, this.state.addSubjectInfo);
+      addSubjectInfo.sortVal = subjectList[subjectList.length - 1].sortVal + 1;
 
       this.setState({
         userInfo: userInfo,
         subjectList: subjectList,
+        addSubjectInfo: addSubjectInfo,
       })
     } catch (e) {
       if (isApiErrorData(e)) {
@@ -166,39 +186,108 @@ class SubjectSettingPage extends React.Component<RouteComponentProps , State> {
     await this.reload();
   }
 
+  async subjctDelete() {
+    if (!this.state.deleteSubjectInfo) {
+      return;
+    }
+    const id = this.state.deleteSubjectInfo.subjectId;
+    this.setState({
+      showIndicator: true,
+      deleteSubjectInfo: null,
+    })
+    await deleteSubject(id);
+    await this.reload();
+  }
+
+  async onSubjectAdd() {
+    if (this.state.addSubjectInfo.name === '') {
+      return;
+    }
+    const param = {
+      name: this.state.addSubjectInfo.name,
+      color: this.state.addSubjectInfo.color,
+      sort_val: this.state.addSubjectInfo.sortVal,
+      is_active: this.state.addSubjectInfo.isActive,
+    }
+    this.setState({
+      showIndicator: true,
+      addSubjectInfo: {
+        name: '',
+        color: '#000000',
+        sortVal: this.state.addSubjectInfo.sortVal + 1,
+        isActive: true,
+      },
+    })
+    await addSubject(param);
+    await this.reload();
+  }
+
   render() {
     const activeSubjects = this.state.subjectList.filter((subj) => {return subj.isActive});
     const deactiveSubjects = this.state.subjectList.filter((subj) => {return !subj.isActive});
+
+    const confirmDialogElement = this.state.deleteSubjectInfo ? (
+      <ConfirmDialog message={`${this.state.deleteSubjectInfo.name}を削除します。よろしいですか。`} onCancel={() => {this.setState({deleteSubjectInfo: null})}} onSubmit={this.subjctDelete} />
+    ) : '';
+
     return (
       <div id="subject-setting-page" className="indicator-parent">
         <h1><img src={logo} className="logo" alt="logo" />作業ジャンル設定</h1>
-        <Link to="/home">Home</Link>
+        <div className="header-menu">
+          <div>タスクの大まかなジャンルを定義することで、記録時に候補として表示します。</div>
+          <div>
+            <Link to="/home">
+              <div className="icon-home" title="記録画面へ"/>
+            </Link>
+          </div>
+        </div>
         <div style={{display: "flex"}}>
           <div className="list-space">
             <h2>有効</h2>
             <SubjectList
-              id="acvive-subject-list"
-              className="acvive"
+              id="active-subject-list"
+              className="active"
               subjectList={activeSubjects}
               onChange={this.onMoveActiveSubject}
               onStateChange={this.onChangeState}
               onChangeColor={this.onChangeColor}
               onSubmitColor={this.onSubmitColor}
             />
+            <div className="subject-add-form">
+              <input
+                type="text"
+                className="subjct-name"
+                value={this.state.addSubjectInfo.name}
+                onChange={(e) => {this.setState({addSubjectInfo: Object.assign(this.state.addSubjectInfo, {name: e.target.value})})}}
+              />
+              <input
+                type="color"
+                className="subjct-color"
+                value={this.state.addSubjectInfo.color}
+                onChange={(e) => {this.setState({addSubjectInfo: Object.assign(this.state.addSubjectInfo, {color: e.target.value})})}}
+              />
+              <button
+                onClick={this.onSubjectAdd}
+              >
+                追加
+              </button>
+            </div>
           </div>
           <div className="list-space">
             <h2>無効</h2>
             <SubjectList
-              id="deacvive-subject-list"
+              id="deactive-subject-list"
               className="deactive"
               subjectList={deactiveSubjects}
               onChange={this.onMoveDeactiveSubject}
               onStateChange={this.onChangeState}
               onChangeColor={this.onChangeColor}
               onSubmitColor={this.onSubmitColor}
+              onClickDelete={(s) => {this.setState({deleteSubjectInfo: s})}}
             />
           </div>
         </div>
+        {confirmDialogElement}
         <Indicator show={this.state.showIndicator} />
       </div>
     );
