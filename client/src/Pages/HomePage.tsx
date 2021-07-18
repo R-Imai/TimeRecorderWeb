@@ -55,6 +55,9 @@ type State = {
 class HomePage extends React.Component<RouteComponentProps, State> {
   constructor(props: RouteComponentProps) {
     super(props);
+
+    document.title = "TimeRecorder | ホーム";
+
     this.state = {
       userInfo: null,
       showIndicator: false,

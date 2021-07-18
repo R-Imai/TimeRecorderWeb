@@ -27,9 +27,7 @@ const Routes: React.FC = () => {
         <Route exact path="/calc" component={CalcPage} />
         <Route exact path="/error/401" component={Unauthorized} />
         <Route exact path="/error/404" component={NotFound} />
-        <Route exact path="">
-          <Redirect to={'/login'}/>
-        </Route>
+        <Route exact path="" component={NotFound} />
       </Switch>
     </Router>
   )

@@ -24,6 +24,9 @@ type State = {
 class RegisterPage extends React.Component<RouteComponentProps , State> {
   constructor(props: RouteComponentProps) {
     super(props);
+    
+    document.title = "TimeRecorder | アカウント作成";
+
     this.state = {
       id: '',
       name: '',

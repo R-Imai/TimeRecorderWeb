@@ -3,6 +3,9 @@ import { withRouter, RouteComponentProps } from 'react-router';
 import { Link } from 'react-router-dom';
 
 const Unauthorized: React.FC<RouteComponentProps> = (props: RouteComponentProps) => {
+  
+  document.title = "TimeRecorder | ログインが必要です";
+
   return (
     <div className="error-page">
       <h1>ログインが必要です</h1>

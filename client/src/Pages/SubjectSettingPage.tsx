@@ -32,6 +32,9 @@ type State = {
 class SubjectSettingPage extends React.Component<RouteComponentProps , State> {
   constructor(props: RouteComponentProps) {
     super(props);
+    
+    document.title = "TimeRecorder | 作業ジャンル設定";
+
     this.state = {
       userInfo: null,
       subjectList: [],

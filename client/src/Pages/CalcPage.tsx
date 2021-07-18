@@ -23,6 +23,9 @@ type State = {
 class Calc extends React.Component<RouteComponentProps , State> {
   constructor(props: RouteComponentProps) {
     super(props);
+    
+    document.title = "TimeRecorder | 集計";
+
     this.state = {
       graphPath: '',
       showIndicator: false,

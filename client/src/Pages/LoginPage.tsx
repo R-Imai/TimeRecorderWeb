@@ -20,6 +20,9 @@ type State = {
 class LoginForm extends React.Component<RouteComponentProps , State> {
   constructor(props: RouteComponentProps) {
     super(props);
+
+    document.title = "TimeRecorder | ログイン";
+
     this.state = {
       id: '',
       pass: '',

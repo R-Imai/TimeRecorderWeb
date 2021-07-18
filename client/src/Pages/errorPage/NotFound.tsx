@@ -11,6 +11,9 @@ type LocationState = {
 }
 
 const NotFound: React.FC<RouteComponentProps<{}, StaticContext, LocationState>> = (props: RouteComponentProps<{}, StaticContext, LocationState>) => {
+  
+  document.title = "TimeRecorder | ページが見つかりません";
+
   return (
     <div className="error-page">
       <h1>ページが見つかりませんでした</h1>
