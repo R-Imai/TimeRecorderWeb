@@ -17,3 +17,7 @@ class LoginModel(BaseModel):
 class ActiveToken(BaseModel):
     token: str
     limit_date: datetime
+
+class PasswordUpdate(BaseModel):
+    current: str
+    new: str

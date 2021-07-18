@@ -8,6 +8,7 @@ import logo from '../Image/logo.svg';
 import {isApiErrorData} from '../Actions/ApiBase';
 import Indicator from '../Components/Indicator'
 import ConfirmDialog from '../Components/ConfirmDialog'
+import UserSettingDialog from '../Components/UserSettingDialog'
 
 type State = {
   graphPath: string,
@@ -18,6 +19,7 @@ type State = {
     image?: string;
   } | null;
   showLogoutDialog: boolean;
+  showUserSettingDialog: boolean;
 }
 
 class Calc extends React.Component<RouteComponentProps , State> {
@@ -31,6 +33,7 @@ class Calc extends React.Component<RouteComponentProps , State> {
       showIndicator: false,
       userInfo: null,
       showLogoutDialog: false,
+      showUserSettingDialog: false,
     };
     this.logout = this.logout.bind(this);
   }
@@ -106,6 +109,9 @@ class Calc extends React.Component<RouteComponentProps , State> {
     const logoutDialogElem = this.state.showLogoutDialog ? (
       <ConfirmDialog message="ログアウトします。よろしいですか。" onCancel={() => {this.setState({showLogoutDialog: false})}} onSubmit={this.logout} />
     ) : '';
+    const userSettingDialogElem = this.state.showUserSettingDialog ? (
+      <UserSettingDialog onClose={() => {this.setState({showUserSettingDialog: false})}} />
+    ) : '';
 
     return (
       <div id="calc-page" className="indicator-parent">
@@ -119,7 +125,10 @@ class Calc extends React.Component<RouteComponentProps , State> {
             <Link to="/setting/subject">
               <div className="icon-setting" title="作業ジャンル設定画面へ"/>
             </Link>
-            <span className="logout-btn" onClick={() => {this.setState({showLogoutDialog: true})}}>
+            <span className="link" onClick={() => {this.setState({showUserSettingDialog: true})}}>
+              <div className="icon-user" title="ユーザ設定"/>
+            </span>
+            <span className="link" onClick={() => {this.setState({showLogoutDialog: true})}}>
               <div className="icon-exit" title="ログアウト"/>
             </span>
           </div>
@@ -129,6 +138,7 @@ class Calc extends React.Component<RouteComponentProps , State> {
           <img src={this.state.graphPath} alt="今月の稼働割合グラフ"/>
         </div>
         {logoutDialogElem}
+        {userSettingDialogElem}
         <Indicator show={this.state.showIndicator} />
       </div>
     );

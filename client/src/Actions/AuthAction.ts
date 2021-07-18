@@ -3,11 +3,10 @@ import API from './ApiBase';
 
 axios.defaults.withCredentials = true;
 
-// type UpdatePasswordInfo = {
-//   id: string,
-//   current_password: string,
-//   new_password: string
-// }
+type UpdatePasswordInfo = {
+  current: string,
+  new: string
+}
 
 type userInfo = {
   user_cd: string;
@@ -44,10 +43,6 @@ export async function getUserInfo() {
   return response.data
 }
 
-// export async function updatePassword(token: string, passwordInfo: UpdatePasswordInfo) {
-//   const responce = await axios.post<null>(`${API.UrlBase}${API.Auth.passwordUpdate}`, passwordInfo, {
-//     headers: {
-//       'my-token': token
-//     }}).catch((e: ApiError) => {throw new Error(e.response.data.detail)});
-//   return responce;
-// }
+export async function updatePassword(passwordInfo: UpdatePasswordInfo) {
+  await axios.post<null>(`${API.UrlBase}${API.Auth.password}`, passwordInfo).catch((e) => {throw e});
+}

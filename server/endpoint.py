@@ -137,6 +137,23 @@ def logout(response: Response, TOKEN: Optional[str] = Cookie(None)):
     response.delete_cookie(key="TOKEN")
     return None
 
+@app.post("/api/password", tags=["Auth"])
+def password_update(update_info: auth_model.PasswordUpdate, TOKEN: Optional[str] = Cookie(None)):
+    user_cd = __auth_token(TOKEN)
+    try:
+        auth_service.update_password(user_cd, update_info)
+    except RecorderException as e:
+        raise HTTPException(
+            status_code=e.status_code,
+            detail=str(e),
+        )
+    except Exception as e1:
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=500,
+            detail="予期せぬエラーが発生しました。",
+        )
+    return None
 
 #### ==== Time Recorder Web ==== ####
 

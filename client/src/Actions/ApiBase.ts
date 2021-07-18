@@ -14,6 +14,7 @@ export const API = {
     login: "/api/login",
     logout: "/api/logout",
     user: "/api/user",
+    password: "/api/password",
   },
   Recorder: {
     dailyCalc: "/api/calc/daily",

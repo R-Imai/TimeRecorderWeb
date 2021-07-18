@@ -26,3 +26,9 @@ interface subjectType {
   isActive: boolean,
   subjectId: string,
 }
+
+interface UserInfo {
+  user_cd: string,
+  name: string,
+  image?: string;
+}

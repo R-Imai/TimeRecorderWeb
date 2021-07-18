@@ -8,6 +8,7 @@ import Indicator from '../Components/Indicator'
 import TaskStartInputForm from '../Components/TaskStartInputForm'
 import RunningTask from '../Components/RunningTask'
 import ConfirmDialog from '../Components/ConfirmDialog'
+import UserSettingDialog from '../Components/UserSettingDialog'
 import RunningTaskEditDialog from '../Components/RunningTaskEditDialog'
 import RecordTaskEditDialog from '../Components/RecordTaskEditDialog'
 import TaskRecords from '../Components/TaskRecords'
@@ -50,6 +51,7 @@ type State = {
   recordSummary: recordSummaryType[];
   showCopyMsg: boolean;
   showLogoutDialog: boolean;
+  showUserSettingDialog: boolean;
 }
 
 class HomePage extends React.Component<RouteComponentProps, State> {
@@ -93,6 +95,7 @@ class HomePage extends React.Component<RouteComponentProps, State> {
       recordSummary: [],
       showCopyMsg: false,
       showLogoutDialog: false,
+      showUserSettingDialog: false,
     };
     this.reload = this.reload.bind(this);
     this.taskStart = this.taskStart.bind(this);
@@ -395,6 +398,10 @@ class HomePage extends React.Component<RouteComponentProps, State> {
       <ConfirmDialog message="ログアウトします。よろしいですか。" onCancel={() => {this.setState({showLogoutDialog: false})}} onSubmit={this.logout} />
     ) : '';
 
+    const userSettingDialogElem = this.state.showUserSettingDialog ? (
+      <UserSettingDialog onClose={() => {this.setState({showUserSettingDialog: false})}} />
+    ) : '';
+
     return (
       <div id="main-page" className="indicator-parent">
         <h1><img src={logo} className="logo" alt="logo" />業務履歴登録</h1>
@@ -409,7 +416,10 @@ class HomePage extends React.Component<RouteComponentProps, State> {
             <Link to="/setting/subject">
               <div className="icon-setting" title="作業ジャンル設定画面へ"/>
             </Link>
-            <span className="logout-btn" onClick={() => {this.setState({showLogoutDialog: true})}}>
+            <span className="link" onClick={() => {this.setState({showUserSettingDialog: true})}}>
+              <div className="icon-user" title="ユーザ設定"/>
+            </span>
+            <span className="link" onClick={() => {this.setState({showLogoutDialog: true})}}>
               <div className="icon-exit" title="ログアウト"/>
             </span>
           </div>
@@ -437,6 +447,7 @@ class HomePage extends React.Component<RouteComponentProps, State> {
 
         {runningTaskEditDialogElement}
         {RecordTaskEditDialogElement}
+        {userSettingDialogElem}
         {logoutDialogElem}
         <Indicator show={this.state.showIndicator} />
       </div>

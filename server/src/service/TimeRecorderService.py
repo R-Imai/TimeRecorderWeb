@@ -44,6 +44,8 @@ class TimeRecorderService:
         return ret_data
 
     def __calc_graph_data(self, records: List[model.RecordTaskJoinColor]) -> List[model.GraphSummaryData]:
+        if len(records) == 0:
+            return []
         df = pd.DataFrame(list(map(lambda r: vars(r), records))).drop("task_name", axis=1)
         df["passed_time"] = df["end_time"] - df["start_time"]
         df = df.fillna({"color": ""})

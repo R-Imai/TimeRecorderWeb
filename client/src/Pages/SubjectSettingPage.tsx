@@ -9,6 +9,7 @@ import {getUserInfo, logout} from '../Actions/AuthAction'
 import {getSubject, updateSubject, deleteSubject, addSubject, SubjectType} from '../Actions/RecorderAction';
 
 import ConfirmDialog from '../Components/ConfirmDialog'
+import UserSettingDialog from '../Components/UserSettingDialog'
 import SubjectList from '../Components/SubjectList';
 
 type State = {
@@ -27,6 +28,7 @@ type State = {
   showIndicator: boolean,
   deleteSubjectInfo: subjectType | null,
   showLogoutDialog: boolean;
+  showUserSettingDialog: boolean;
 }
 
 class SubjectSettingPage extends React.Component<RouteComponentProps , State> {
@@ -47,6 +49,7 @@ class SubjectSettingPage extends React.Component<RouteComponentProps , State> {
         isActive: true,
       },
       showLogoutDialog: false,
+      showUserSettingDialog: false,
     };
     this.convertSubjectListResponce = this.convertSubjectListResponce.bind(this);
     this.onMoveSubject = this.onMoveSubject.bind(this);
@@ -251,6 +254,9 @@ class SubjectSettingPage extends React.Component<RouteComponentProps , State> {
     const logoutDialogElem = this.state.showLogoutDialog ? (
       <ConfirmDialog message="ログアウトします。よろしいですか。" onCancel={() => {this.setState({showLogoutDialog: false})}} onSubmit={this.logout} />
     ) : '';
+    const userSettingDialogElem = this.state.showUserSettingDialog ? (
+      <UserSettingDialog onClose={() => {this.setState({showUserSettingDialog: false})}} />
+    ) : '';
 
     return (
       <div id="subject-setting-page" className="indicator-parent">
@@ -264,7 +270,10 @@ class SubjectSettingPage extends React.Component<RouteComponentProps , State> {
             <Link to="/calc">
               <div className="icon-graph" title="集計画面へ"/>
             </Link>
-            <span className="logout-btn" onClick={() => {this.setState({showLogoutDialog: true})}}>
+            <span className="link" onClick={() => {this.setState({showUserSettingDialog: true})}}>
+              <div className="icon-user" title="ユーザ設定"/>
+            </span>
+            <span className="link" onClick={() => {this.setState({showLogoutDialog: true})}}>
               <div className="icon-exit" title="ログアウト"/>
             </span>
           </div>
@@ -317,6 +326,7 @@ class SubjectSettingPage extends React.Component<RouteComponentProps , State> {
         </div>
         {confirmDialogElement}
         {logoutDialogElem}
+        {userSettingDialogElem}
         <Indicator show={this.state.showIndicator} />
       </div>
     );

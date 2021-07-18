@@ -111,3 +111,20 @@ class AuthService:
             raise e
         finally:
             conn.close()
+    
+    def update_password(self, user_cd, password_info: model.PasswordUpdate):
+        try:
+            conn = connection.mk_connection()
+            with conn.cursor() as cur:
+                current_password_hash = self.__make_password_hash(user_cd, password_info.current)
+                db_password_hash = self.repository.get_user_auth(cur, user_cd)
+                if (current_password_hash != db_password_hash):
+                    raise IllegalArgumentException("現在のパスワードが誤っています。")
+                new_password_hash = self.__make_password_hash(user_cd, password_info.new)
+                self.repository.update_password(cur, user_cd, new_password_hash)
+                conn.commit()
+        except Exception as e:
+            conn.rollback()
+            raise e
+        finally:
+            conn.close()

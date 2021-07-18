@@ -13,6 +13,7 @@ class AuthRepository:
         self.sql_get_active_token = "SELECT user_cd, limit_date FROM active_token WHERE token=%s;"
         self.sql_delete_active_token = "DELETE FROM active_token WHERE token=%s;"
         self.sql_delete_outdate_active_token = "DELETE FROM active_token WHERE limit_date < %s;"
+        self.sql_update_password = "UPDATE user_auth SET password=%(password)s WHERE user_cd=%(user_cd)s;"
 
     def set_user_master(self, cur, data:model.Master):
         query_param = dict(
@@ -63,3 +64,10 @@ class AuthRepository:
 
     def delete_outdate_active_token(self, cur):
         cur.execute(self.sql_delete_outdate_active_token, (datetime.now(),))
+
+    def update_password(self, cur, user_cd, new_password):
+        params = dict(
+            user_cd = user_cd,
+            password = new_password,
+        )
+        cur.execute(self.sql_update_password, params)
