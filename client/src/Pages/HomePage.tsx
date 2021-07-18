@@ -13,7 +13,7 @@ import RecordTaskEditDialog from '../Components/RecordTaskEditDialog'
 import TaskRecords from '../Components/TaskRecords'
 import RecordSummary from '../Components/RecordSummary'
 
-import {getUserInfo} from '../Actions/AuthAction'
+import {getUserInfo, logout} from '../Actions/AuthAction'
 import {getActiveSubjects, taskStart, getRunningTask, taskEnd, taskEdit, taskCancel, recordToday, recordEdit, calcToday, StartTaskInfoType, TaskRecordType, CalcResultType} from '../Actions/RecorderAction'
 import logo from '../Image/logo.svg';
 
@@ -49,6 +49,7 @@ type State = {
   errMsg: string;
   recordSummary: recordSummaryType[];
   showCopyMsg: boolean;
+  showLogoutDialog: boolean;
 }
 
 class HomePage extends React.Component<RouteComponentProps, State> {
@@ -88,6 +89,7 @@ class HomePage extends React.Component<RouteComponentProps, State> {
       errMsg: '',
       recordSummary: [],
       showCopyMsg: false,
+      showLogoutDialog: false,
     };
     this.reload = this.reload.bind(this);
     this.taskStart = this.taskStart.bind(this);
@@ -98,6 +100,7 @@ class HomePage extends React.Component<RouteComponentProps, State> {
     this.taskEdit = this.taskEdit.bind(this);
     this.recordRowClick = this.recordRowClick.bind(this);
     this.recordEdit = this.recordEdit.bind(this);
+    this.logout = this.logout.bind(this);
   }
 
   async componentDidMount() {
@@ -312,6 +315,18 @@ class HomePage extends React.Component<RouteComponentProps, State> {
     await this.reload();
   }
 
+  async logout() {
+    this.setState({
+      showIndicator: true,
+      showLogoutDialog: false,
+    })
+    await logout();
+    this.setState({
+      showIndicator: false,
+    })
+    this.props.history.push('/login');
+  }
+
   render() {
     const txt = this.state.userInfo === null ? '' : `${this.state.userInfo.name} さん`
 
@@ -373,6 +388,10 @@ class HomePage extends React.Component<RouteComponentProps, State> {
       />
     ) : '';
 
+    const logoutDialogElem = this.state.showLogoutDialog ? (
+      <ConfirmDialog message="ログアウトします。よろしいですか。" onCancel={() => {this.setState({showLogoutDialog: false})}} onSubmit={this.logout} />
+    ) : '';
+
     return (
       <div id="main-page" className="indicator-parent">
         <h1><img src={logo} className="logo" alt="logo" />業務履歴登録</h1>
@@ -387,6 +406,9 @@ class HomePage extends React.Component<RouteComponentProps, State> {
             <Link to="/setting/subject">
               <div className="icon-setting" title="作業ジャンル設定画面へ"/>
             </Link>
+            <span className="logout-btn" onClick={() => {this.setState({showLogoutDialog: true})}}>
+              <div className="icon-exit" title="ログアウト"/>
+            </span>
           </div>
         </div>
         {inputSpaceElement}
@@ -412,6 +434,7 @@ class HomePage extends React.Component<RouteComponentProps, State> {
 
         {runningTaskEditDialogElement}
         {RecordTaskEditDialogElement}
+        {logoutDialogElem}
         <Indicator show={this.state.showIndicator} />
       </div>
     )

@@ -2,11 +2,12 @@ import React from 'react';
 import { withRouter, RouteComponentProps } from 'react-router';
 import { Link } from 'react-router-dom';
 
-import {getUserInfo} from '../Actions/AuthAction'
+import {getUserInfo, logout} from '../Actions/AuthAction'
 import {calcMonthGraph} from '../Actions/RecorderAction';
 import logo from '../Image/logo.svg';
 import {isApiErrorData} from '../Actions/ApiBase';
 import Indicator from '../Components/Indicator'
+import ConfirmDialog from '../Components/ConfirmDialog'
 
 type State = {
   graphPath: string,
@@ -16,6 +17,7 @@ type State = {
     name: string;
     image?: string;
   } | null;
+  showLogoutDialog: boolean;
 }
 
 class Calc extends React.Component<RouteComponentProps , State> {
@@ -25,7 +27,9 @@ class Calc extends React.Component<RouteComponentProps , State> {
       graphPath: '',
       showIndicator: false,
       userInfo: null,
+      showLogoutDialog: false,
     };
+    this.logout = this.logout.bind(this);
   }
 
   async componentDidMount() {
@@ -82,7 +86,24 @@ class Calc extends React.Component<RouteComponentProps , State> {
     }
   }
 
+  async logout() {
+    this.setState({
+      showIndicator: true,
+      showLogoutDialog: false,
+    })
+    await logout();
+    this.setState({
+      showIndicator: false,
+    })
+    this.props.history.push('/login');
+  }
+
   render() {
+    
+    const logoutDialogElem = this.state.showLogoutDialog ? (
+      <ConfirmDialog message="ログアウトします。よろしいですか。" onCancel={() => {this.setState({showLogoutDialog: false})}} onSubmit={this.logout} />
+    ) : '';
+
     return (
       <div id="calc-page" className="indicator-parent">
         <h1><img src={logo} className="logo" alt="logo" />集計</h1>
@@ -95,12 +116,16 @@ class Calc extends React.Component<RouteComponentProps , State> {
             <Link to="/setting/subject">
               <div className="icon-setting" title="作業ジャンル設定画面へ"/>
             </Link>
+            <span className="logout-btn" onClick={() => {this.setState({showLogoutDialog: true})}}>
+              <div className="icon-exit" title="ログアウト"/>
+            </span>
           </div>
         </div>
         <div className="image-space">
           <h2>今月の稼働状況</h2>
           <img src={this.state.graphPath} alt="今月の稼働割合グラフ"/>
         </div>
+        {logoutDialogElem}
         <Indicator show={this.state.showIndicator} />
       </div>
     );

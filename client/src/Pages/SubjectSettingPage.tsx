@@ -5,7 +5,7 @@ import logo from '../Image/logo.svg';
 
 import Indicator from '../Components/Indicator'
 import {isApiErrorData} from '../Actions/ApiBase';
-import {getUserInfo} from '../Actions/AuthAction'
+import {getUserInfo, logout} from '../Actions/AuthAction'
 import {getSubject, updateSubject, deleteSubject, addSubject, SubjectType} from '../Actions/RecorderAction';
 
 import ConfirmDialog from '../Components/ConfirmDialog'
@@ -26,6 +26,7 @@ type State = {
   subjectList: subjectType[],
   showIndicator: boolean,
   deleteSubjectInfo: subjectType | null,
+  showLogoutDialog: boolean;
 }
 
 class SubjectSettingPage extends React.Component<RouteComponentProps , State> {
@@ -41,7 +42,8 @@ class SubjectSettingPage extends React.Component<RouteComponentProps , State> {
         color: '#000000',
         sortVal: 0,
         isActive: true,
-      }
+      },
+      showLogoutDialog: false,
     };
     this.convertSubjectListResponce = this.convertSubjectListResponce.bind(this);
     this.onMoveSubject = this.onMoveSubject.bind(this);
@@ -52,6 +54,7 @@ class SubjectSettingPage extends React.Component<RouteComponentProps , State> {
     this.onSubmitColor = this.onSubmitColor.bind(this);
     this.subjctDelete = this.subjctDelete.bind(this);
     this.onSubjectAdd = this.onSubjectAdd.bind(this);
+    this.logout = this.logout.bind(this);
   }
 
   async componentDidMount() {
@@ -222,12 +225,28 @@ class SubjectSettingPage extends React.Component<RouteComponentProps , State> {
     await this.reload();
   }
 
+  async logout() {
+    this.setState({
+      showIndicator: true,
+      showLogoutDialog: false,
+    })
+    await logout();
+    this.setState({
+      showIndicator: false,
+    })
+    this.props.history.push('/login');
+  }
+
   render() {
     const activeSubjects = this.state.subjectList.filter((subj) => {return subj.isActive});
     const deactiveSubjects = this.state.subjectList.filter((subj) => {return !subj.isActive});
 
     const confirmDialogElement = this.state.deleteSubjectInfo ? (
       <ConfirmDialog message={`${this.state.deleteSubjectInfo.name}を削除します。よろしいですか。`} onCancel={() => {this.setState({deleteSubjectInfo: null})}} onSubmit={this.subjctDelete} />
+    ) : '';
+
+    const logoutDialogElem = this.state.showLogoutDialog ? (
+      <ConfirmDialog message="ログアウトします。よろしいですか。" onCancel={() => {this.setState({showLogoutDialog: false})}} onSubmit={this.logout} />
     ) : '';
 
     return (
@@ -242,6 +261,9 @@ class SubjectSettingPage extends React.Component<RouteComponentProps , State> {
             <Link to="/calc">
               <div className="icon-graph" title="集計画面へ"/>
             </Link>
+            <span className="logout-btn" onClick={() => {this.setState({showLogoutDialog: true})}}>
+              <div className="icon-exit" title="ログアウト"/>
+            </span>
           </div>
         </div>
         <div style={{display: "flex"}}>
@@ -291,6 +313,7 @@ class SubjectSettingPage extends React.Component<RouteComponentProps , State> {
           </div>
         </div>
         {confirmDialogElement}
+        {logoutDialogElem}
         <Indicator show={this.state.showIndicator} />
       </div>
     );
