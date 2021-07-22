@@ -210,24 +210,58 @@ class HomePage extends React.Component<RouteComponentProps, State> {
       task_subject: this.state.inputTaskInfo.taskSubject,
       task_name: this.state.inputTaskInfo.taskName,
     }
-    const responce = await taskStart(requestParam)
-    const startTask = this.convertRunningTaskResponce(responce);
-    this.setState({
-      runningTask: startTask,
-      showIndicator: false,
-      inputTaskInfo: {
-        taskSubject: '',
-        taskName: '',
+    try {
+      const responce = await taskStart(requestParam)
+      const startTask = this.convertRunningTaskResponce(responce);
+      this.setState({
+        runningTask: startTask,
+        showIndicator: false,
+        inputTaskInfo: {
+          taskSubject: '',
+          taskName: '',
+        }
+      });
+    } catch (e) {
+      if (isApiErrorData(e)) {
+        if (e.response?.status === 401) {
+          console.error('Auth');
+          console.log(e.response.data.detail);
+          this.props.history.push('/error/401');
+        }
+        this.setState({
+          errMsg: e.response?.data.detail ? e.response?.data.detail : '予期せぬエラーが発生しました。',
+        })
       }
-    });
+    } finally {
+      this.setState({
+        showIndicator: false,
+      })
+    }
   }
 
   async taskEnd() {
     this.setState({
       showIndicator: true
     })
-    await taskEnd();
-    await this.reload();
+    try {
+      await taskEnd();
+      await this.reload();
+    } catch (e) {
+      if (isApiErrorData(e)) {
+        if (e.response?.status === 401) {
+          console.error('Auth');
+          console.log(e.response.data.detail);
+          this.props.history.push('/error/401');
+        }
+        this.setState({
+          errMsg: e.response?.data.detail ? e.response?.data.detail : '予期せぬエラーが発生しました。',
+        })
+      }
+    } finally {
+      this.setState({
+        showIndicator: false,
+      })
+    }
   }
 
   taskCancelClick() {
@@ -241,8 +275,25 @@ class HomePage extends React.Component<RouteComponentProps, State> {
       showIndicator: true,
       showConfirmDialog: false,
     })
-    await taskCancel();
-    await this.reload();
+    try {
+      await taskCancel();
+      await this.reload();
+    } catch (e) {
+      if (isApiErrorData(e)) {
+        if (e.response?.status === 401) {
+          console.error('Auth');
+          console.log(e.response.data.detail);
+          this.props.history.push('/error/401');
+        }
+        this.setState({
+          errMsg: e.response?.data.detail ? e.response?.data.detail : '予期せぬエラーが発生しました。',
+        })
+      }
+    } finally {
+      this.setState({
+        showIndicator: false,
+      })
+    }
   }
 
   taskEditClick() {
@@ -276,8 +327,25 @@ class HomePage extends React.Component<RouteComponentProps, State> {
       task_name: this.state.editTaskInfo.taskName,
       start_time: startTimeStr,
     }
-    await taskEdit(requestParam);
-    await this.reload();
+    try {
+      await taskEdit(requestParam);
+      await this.reload();
+    } catch (e) {
+      if (isApiErrorData(e)) {
+        if (e.response?.status === 401) {
+          console.error('Auth');
+          console.log(e.response.data.detail);
+          this.props.history.push('/error/401');
+        }
+        this.setState({
+          errMsg: e.response?.data.detail ? e.response?.data.detail : '予期せぬエラーが発生しました。',
+        })
+      }
+    } finally {
+      this.setState({
+        showIndicator: false,
+      })
+    }
   }
 
   recordRowClick(task: todaysTaskType) {
@@ -317,8 +385,25 @@ class HomePage extends React.Component<RouteComponentProps, State> {
       start_time: startTimeStr,
       end_time: endTimeStr,
     }
-    await recordEdit(requestParam);
-    await this.reload();
+    try {
+      await recordEdit(requestParam);
+      await this.reload();
+    } catch (e) {
+      if (isApiErrorData(e)) {
+        if (e.response?.status === 401) {
+          console.error('Auth');
+          console.log(e.response.data.detail);
+          this.props.history.push('/error/401');
+        }
+        this.setState({
+          errMsg: e.response?.data.detail ? e.response?.data.detail : '予期せぬエラーが発生しました。',
+        })
+      }
+    } finally {
+      this.setState({
+        showIndicator: false,
+      })
+    }
   }
 
   async logout() {
@@ -424,6 +509,7 @@ class HomePage extends React.Component<RouteComponentProps, State> {
             </span>
           </div>
         </div>
+        {this.state.errMsg !== '' ? <Message value={this.state.errMsg} type="error" /> : ''}
         {inputSpaceElement}
         {confirmDialogElement}
 
