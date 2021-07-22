@@ -62,6 +62,15 @@ class TimeRecorderService:
         data = []
         colors = [None for i in range(len(summary_data))]
 
+        if len(summary_data) == 0:
+            plt.rcParams['font.family'] = 'Yu Mincho'
+            plt.figure(figsize=(18, 10))
+            plt.text(0.2, 0.6, "対象の記録が存在しません。", color="#fafafa", backgroundcolor="#333333", size="48")
+            plt.axis("off")
+            plt.savefig(save_path)
+            plt.clf()
+            return
+
         for i, elem in enumerate(summary_data):
             label.append("{0} [{1}]".format(elem.task_subject, elem.passed_time_str))
             data.append(elem.passed_second)
