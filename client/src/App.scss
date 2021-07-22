@@ -829,7 +829,7 @@ button {
     margin: 0;
     display: flex;
     & > div {
-      width: 50%;
+      width: calc(50% - 2rem);
       margin: 0 1rem;
     }
   }
@@ -1014,7 +1014,7 @@ button {
         padding: 0.5rem 1rem;
       }
       .subject {
-        width: calc(40% - 5rem);
+        width: calc(40% - 4rem);
         padding: 0.5rem 0;
         padding-left: 2rem;
         font-weight: bold;
@@ -1024,7 +1024,7 @@ button {
         vertical-align: top;
       }
       .name {
-        width: calc(60% - 5rem);;
+        width: calc(60% - 4rem);;
         padding: 0.5rem 0;
         padding-left:1rem;
         overflow: hidden;
@@ -1161,127 +1161,139 @@ button {
 }
 
 #subject-setting-page {
-  .list-space {
-    width: 50%;
-    .subject-list {
-      margin: 0 1rem;
-      padding: 0.5rem;
-      list-style: none;
-      li {
-        margin: 0.2rem 0;
-        padding-left: 0.5rem;
-        color: #222222;
-        background-color: #c4c4c4;
-        border-left: solid 1rem #fafafa;
-        font-size: 1.2rem;
-        height: 2rem;
-        cursor: move;
-        display: flex;
-        .swith-btn {
-          display: inline-block;
-          width: 5rem;
-          height: 100%;
-          padding: 0 0.5rem;
-          position: relative;
-          color: #fafafa;
-          background: none;
-          font-size: 0.8rem;
-          border-radius: 0.5rem;
-          z-index: 1;
-          &::before {
-            background: linear-gradient(90deg, #c4c4c4 0%, #a1707b 10%, #a1707b 40%, #a1707b 90%, #c4c4c4 100%);
-            content: '';
-            position: absolute;
-            z-index: -2;
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 100%;
-          }
-          &::after {
-            background: #ebc4cc;
-            content: '';
-            position: absolute;
-            z-index: -1;
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 100%;
-            transform: scale(0, 1);
-            transition: transform 0.2s;
-          }
-          &:hover{
-            color: #222222;
-            &::after {
-              transform: scale(1, 1);
-            }
-          }
-        }
-        .subject-name {
-          display: inline-block;
-          width: calc(100% - 11.9rem);
-          padding-left: 1rem;
-          user-select: none;
-          -webkit-user-select: none;
-        }
-        .color {
-          width: 2.5rem;
-          padding-right: 0.5rem;
-          margin: 0 0 0 auto;
-          border: none;
-          background: none;
-          cursor: pointer;
-        }
-        .delete-btn {
-          display: inline-block;
-          width: 2.5rem;
-          height: 100%;
-          padding: 0 0.5rem;
-          position: relative;
-          color: #fafafa;
-          background: none;
-          font-size: 1.2rem;
-          border-radius: 0.5rem;
-          z-index: 1;
-          &::before {
-            background: #b9193c;
-            content: '';
-            position: absolute;
-            z-index: -2;
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 100%;
-          }
-          &::after {
-            background: #ffaebf;
-            content: '';
-            position: absolute;
-            z-index: -1;
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 100%;
-            transform: scale(0, 0);
-            transition: transform 0.2s;
-          }
-          &:hover{
-            color: #222222;
-            &::after {
-              transform: scale(1, 1);
-            }
-          }
-        }
-        &:hover  {
-          background-color: #dadada;
-        }
+  .subject-setting-space {
+    margin: 0 1rem;
+    @media screen and (min-width: 900px) {
+      margin: 0;
+      display: flex;
+      & > .list-space {
+        width: 50%;
       }
     }
-    .active {
-      background-color: #c5ffec;
-    }
-    .deactive {
-      background-color: #ececec;
+    .list-space {
+      .subject-list {
+        margin: 0 1rem;
+        padding: 0.5rem;
+        list-style: none;
+        li {
+          margin: 0.2rem 0;
+          padding-left: 0.5rem;
+          color: #222222;
+          background-color: #c4c4c4;
+          border-left: solid 1rem #fafafa;
+          font-size: 1.2rem;
+          height: 2rem;
+          cursor: move;
+          display: flex;
+          .swith-btn {
+            display: inline-block;
+            width: 5rem;
+            height: 100%;
+            padding: 0 0.5rem;
+            position: relative;
+            color: #fafafa;
+            background: none;
+            font-size: 0.8rem;
+            border-radius: 0.5rem;
+            z-index: 1;
+            &::before {
+              background: linear-gradient(90deg, #c4c4c4 0%, #a1707b 10%, #a1707b 40%, #a1707b 90%, #c4c4c4 100%);
+              content: '';
+              position: absolute;
+              z-index: -2;
+              left: 0;
+              top: 0;
+              height: 100%;
+              width: 100%;
+            }
+            &::after {
+              background: #ebc4cc;
+              content: '';
+              position: absolute;
+              z-index: -1;
+              left: 0;
+              top: 0;
+              height: 100%;
+              width: 100%;
+              transform: scale(0, 1);
+              transition: transform 0.2s;
+            }
+            &:hover{
+              color: #222222;
+              &::after {
+                transform: scale(1, 1);
+              }
+            }
+          }
+          .subject-name {
+            display: inline-block;
+            width: calc(100% - 11.9rem);
+            padding-left: 1rem;
+            user-select: none;
+            -webkit-user-select: none;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space:nowrap;
+          }
+          .color {
+            width: 2.5rem;
+            padding-right: 0.5rem;
+            margin: 0 0 0 auto;
+            border: none;
+            background: none;
+            cursor: pointer;
+          }
+          .delete-btn {
+            display: inline-block;
+            width: 2.5rem;
+            height: 100%;
+            padding: 0 0.5rem;
+            position: relative;
+            color: #fafafa;
+            background: none;
+            font-size: 1.2rem;
+            border-radius: 0.5rem;
+            z-index: 1;
+            &::before {
+              background: #b9193c;
+              content: '';
+              position: absolute;
+              z-index: -2;
+              left: 0;
+              top: 0;
+              height: 100%;
+              width: 100%;
+            }
+            &::after {
+              background: #ffaebf;
+              content: '';
+              position: absolute;
+              z-index: -1;
+              left: 0;
+              top: 0;
+              height: 100%;
+              width: 100%;
+              transform: scale(0, 0);
+              transition: transform 0.2s;
+            }
+            &:hover{
+              color: #222222;
+              &::after {
+                transform: scale(1, 1);
+              }
+            }
+          }
+          &:hover  {
+            background-color: #dadada;
+          }
+        }
+      }
+      .active {
+        background-color: #c5ffec;
+      }
+      .deactive {
+        background-color: #ececec;
+      }
     }
   }
   .subject-add-form {

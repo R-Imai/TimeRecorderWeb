@@ -278,7 +278,7 @@ class SubjectSettingPage extends React.Component<RouteComponentProps , State> {
             </span>
           </div>
         </div>
-        <div style={{display: "flex"}}>
+        <div className="subject-setting-space">
           <div className="list-space">
             <h2>有効</h2>
             <SubjectList
