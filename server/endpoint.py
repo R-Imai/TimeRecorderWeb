@@ -176,6 +176,25 @@ def calc_daily(date: date, TOKEN: Optional[str] = Cookie(None)):
         )
     return __mk_responce_json(summary_data)
 
+# 今日の日報計算
+@app.get("/api/calc/daily/today", response_model=List[tr_model.SummaryData], tags=["TimeRecorder"])
+def calc_daily_today(TOKEN: Optional[str] = Cookie(None)):
+    user_cd = __auth_token(TOKEN)
+    try:
+        summary_data = recorder_service.calc_daily_summary_today(user_cd)
+    except RecorderException as e:
+        raise HTTPException(
+            status_code=e.status_code,
+            detail=str(e),
+        )
+    except Exception as e1:
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=500,
+            detail="予期せぬエラーが発生しました。",
+        )
+    return __mk_responce_json(summary_data)
+
 # タスク開始
 @app.post("/api/record/running", response_model=tr_model.RunningTask, tags=["TimeRecorder"])
 def job_start(post_param: tr_model.TaskDetail, TOKEN: Optional[str] = Cookie(None)):
@@ -274,6 +293,25 @@ def record_get(TOKEN: Optional[str] = Cookie(None)):
     user_cd = __auth_token(TOKEN)
     try:
         records = recorder_service.get_today_record(user_cd)
+    except RecorderException as e:
+        raise HTTPException(
+            status_code=e.status_code,
+            detail=str(e),
+        )
+    except Exception as e1:
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=500,
+            detail="予期せぬエラーが発生しました。",
+        )
+    return __mk_responce_json(records)
+
+# タスク履歴取得
+@app.get("/api/record", response_model=List[tr_model.RecordTask], tags=["TimeRecorder"])
+def get_task_record(date: date, TOKEN: Optional[str] = Cookie(None)):
+    user_cd = __auth_token(TOKEN)
+    try:
+        records = recorder_service.get_task_record(user_cd, date)
     except RecorderException as e:
         raise HTTPException(
             status_code=e.status_code,

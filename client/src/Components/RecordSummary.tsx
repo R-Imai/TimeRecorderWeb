@@ -50,7 +50,7 @@ const copy = (copyTxt: string, onCopySuccess?: () => void) => {
 
 const recordSummary: React.FC<Props> = (props: Props) => {
   const showData = transformSummaryData(props.summaryData);
-  const mainElem = showData.map((subjData, i) => {
+  const mainElem = showData.length !==0 ? showData.map((subjData, i) => {
     return (
       <li key={`task-${i}`}>
         <span className="subject">{subjData.subject}</span>
@@ -67,7 +67,9 @@ const recordSummary: React.FC<Props> = (props: Props) => {
         </ul>
       </li>
     )
-  });
+  }) : (
+    <div className="message mt-10">対象の記録はありません。</div>
+  );
   const copyText = showData.map((subjData) => {
     const taskData = subjData.task.map((taskData) => {
       return `    - ${taskData.taskName}: ${taskData.timestr}\r\n`;
@@ -75,14 +77,18 @@ const recordSummary: React.FC<Props> = (props: Props) => {
     return `- ${subjData.subject}${subjData.timeStr !== '' ? `: ${subjData.timeStr}`: ''}\r\n` + taskData.join('');
   }).join('');
 
+  const btnSpaceElem = showData.length !==0 ? (
+    <div className="btn-space">
+      <button className="copy-btn" type="button" onClick={() => {copy(copyText, props.onCopySuccess);}}>テキストでコピー</button>
+    </div>
+  ): '';
+
   return (
     <div className="task-summary">
       <ul>
         {mainElem}
       </ul>
-      <div className="btn-space">
-        <button className="copy-btn" type="button" onClick={() => {copy(copyText, props.onCopySuccess);}}>テキストでコピー</button>
-      </div>
+      {btnSpaceElem}
     </div>
   );
 }

@@ -18,9 +18,11 @@ export const API = {
   },
   Recorder: {
     dailyCalc: "/api/calc/daily",
+    dailyCalcToday: "/api/calc/daily/today",
     recordRunning: "/api/record/running",
     recordEnd: "/api/record/end",
     recordToday: "/api/record/today",
+    record: "/api/record",
     recordTask: "/api/record/task",
     graph: "/api/graph",
     subject: "/api/setting/subject",

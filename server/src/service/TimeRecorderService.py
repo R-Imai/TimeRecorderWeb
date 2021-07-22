@@ -183,6 +183,21 @@ class TimeRecorderService:
         finally:
             conn.close()
         return records
+    
+    def get_task_record(self, user_cd, target_date: date) -> List[model.RecordTask]:
+        start_time = datetime(target_date.year, target_date.month, target_date.day, hour = DAY_CHANGE_HOUR)
+        end_time = datetime(target_date.year, target_date.month,  target_date.day + 1, hour = DAY_CHANGE_HOUR)
+        try:
+            conn = connection.mk_connection()
+            with conn.cursor() as cur:
+                records = self.repository.get_task_records(cur, user_cd, start_time, end_time)
+                conn.commit()
+        except Exception as e:
+            conn.rollback()
+            raise e
+        finally:
+            conn.close()
+        return records
 
     def update_task_record(self, user_cd:str, task:model.RecordTask) -> None:
         try:
@@ -201,6 +216,24 @@ class TimeRecorderService:
             raise e
         finally:
             conn.close()
+    
+    def calc_daily_summary_today(self, user_cd:str) -> List[model.SummaryData]:
+        now = datetime.now()
+        day = now.day if now.hour > DAY_CHANGE_HOUR else (now - timedelta(days = 1)).day
+        start_time = now.replace(day = day, hour = DAY_CHANGE_HOUR, minute = 0, second = 0, microsecond = 0)
+        end_time = now.replace(day = day + 1, hour = DAY_CHANGE_HOUR, minute = 0, second = 0, microsecond = 0)
+        try:
+            conn = connection.mk_connection()
+            with conn.cursor() as cur:
+                records: List[model.RecordTask] = self.repository.get_task_records(cur, user_cd, start_time, end_time)
+                conn.commit()
+        except Exception as e:
+            conn.rollback()
+            raise e
+        finally:
+            conn.close()
+
+        return self.__calc_summary_data(records)
 
     def calc_daily_summary(self, user_cd:str, target_date: date) -> List[model.SummaryData]:
         start_time = datetime(target_date.year, target_date.month, target_date.day, hour = DAY_CHANGE_HOUR)

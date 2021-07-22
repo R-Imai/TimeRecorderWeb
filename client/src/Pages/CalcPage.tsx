@@ -3,12 +3,15 @@ import { withRouter, RouteComponentProps } from 'react-router';
 import { Link } from 'react-router-dom';
 
 import {getUserInfo, logout} from '../Actions/AuthAction'
-import {calcMonthGraph} from '../Actions/RecorderAction';
+import {calcMonthGraph, calcDaily, getRecord, TaskRecordType, CalcResultType} from '../Actions/RecorderAction';
 import logo from '../Image/logo.svg';
 import {isApiErrorData} from '../Actions/ApiBase';
 import Indicator from '../Components/Indicator'
 import ConfirmDialog from '../Components/ConfirmDialog'
 import UserSettingDialog from '../Components/UserSettingDialog'
+import Message from '../Components/Message'
+import TaskRecords from '../Components/TaskRecords'
+import RecordSummary from '../Components/RecordSummary'
 
 type State = {
   graphPath: string,
@@ -20,6 +23,10 @@ type State = {
   } | null;
   showLogoutDialog: boolean;
   showUserSettingDialog: boolean;
+  dailyTask: todaysTaskType[];
+  showCopyMsg: boolean;
+  recordSummary: recordSummaryType[];
+  calcTaskSummaryDate: string;
 }
 
 class Calc extends React.Component<RouteComponentProps , State> {
@@ -34,8 +41,13 @@ class Calc extends React.Component<RouteComponentProps , State> {
       userInfo: null,
       showLogoutDialog: false,
       showUserSettingDialog: false,
+      dailyTask: [],
+      showCopyMsg: false,
+      recordSummary: [],
+      calcTaskSummaryDate: '',
     };
     this.logout = this.logout.bind(this);
+    this.onClickCalcDaily = this.onClickCalcDaily.bind(this);
   }
 
   async componentDidMount() {
@@ -104,6 +116,44 @@ class Calc extends React.Component<RouteComponentProps , State> {
     this.props.history.push('/login');
   }
 
+  async onClickCalcDaily(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+    e.preventDefault();
+    if (this.state.calcTaskSummaryDate === '') {
+      return;
+    }
+    this.setState({
+      showIndicator: true,
+    })
+    const response = await Promise.all([
+      getRecord(this.state.calcTaskSummaryDate),
+      calcDaily(this.state.calcTaskSummaryDate),
+    ]);
+    this.setState({
+      showIndicator: false,
+      dailyTask: response[0].map((v) => {return this.convertTodaysTaskResponce(v)}),
+      recordSummary: response[1].map((v) => {return this.convertCalcResultResponce(v)}),
+    })
+  }
+
+  convertTodaysTaskResponce(responce: TaskRecordType) {
+    return {
+      taskId: responce.task_id,
+      taskSubject: responce.task_subject,
+      taskName: responce.task_name,
+      startTime: responce.start_time,
+      endTime: responce.end_time,
+    };
+  }
+
+  convertCalcResultResponce(responce: CalcResultType) {
+    return {
+      taskSubject: responce.task_subject,
+      taskName: responce.task_name,
+      passedSecond: responce.passed_second,
+      passedTimeStr: responce.passed_time_str,
+    };
+  }
+
   render() {
     
     const logoutDialogElem = this.state.showLogoutDialog ? (
@@ -131,6 +181,27 @@ class Calc extends React.Component<RouteComponentProps , State> {
             <span className="link" onClick={() => {this.setState({showLogoutDialog: true})}}>
               <div className="icon-exit" title="ログアウト"/>
             </span>
+          </div>
+        </div>
+        <h2>過去の業務記録参照</h2>
+        <form className="calc-date-input">
+          <input value={this.state.calcTaskSummaryDate} type="date" onChange={(e) => {this.setState({calcTaskSummaryDate: e.target.value})}}/>
+          <button onClick={this.onClickCalcDaily}>参照</button>
+        </form>
+        <div className="record-space">
+          <div className="record-history">
+            <h3>業務履歴</h3>
+            <TaskRecords todaysTask={this.state.dailyTask} />
+          </div>
+          <div className="record-summary">
+            <h3>集計結果</h3>
+            {this.state.showCopyMsg ? <Message type="info" value="コピーしました" /> : ''}
+            <RecordSummary summaryData={this.state.recordSummary} onCopySuccess={() => {
+              this.setState({showCopyMsg: true});
+              setTimeout(() => {
+                this.setState({showCopyMsg: false});
+              }, 3000);
+            }}/>
           </div>
         </div>
         <div className="image-space">

@@ -77,13 +77,21 @@ export async function recordToday(){
   return responce.data;
 }
 
+export async function getRecord(dateStr: string){
+  const responce = await axios.get<TaskRecordType[]>(`${API.UrlBase}${API.Recorder.record}`, {params: {date: dateStr}}).catch((e) => {throw e})
+  return responce.data;
+}
+
 export async function recordEdit(taskInfo: TaskRecordType) {
   await axios.put<null>(`${API.UrlBase}${API.Recorder.recordTask}`, taskInfo).catch((e) => {throw e})
 }
 
 export async function calcToday() {
-  const now = new Date();
-  const dateStr = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`
+  const responce = await axios.get<CalcResultType[]>(`${API.UrlBase}${API.Recorder.dailyCalcToday}`).catch((e) => {throw e})
+  return responce.data;
+}
+
+export async function calcDaily(dateStr: string) {
   const responce = await axios.get<CalcResultType[]>(`${API.UrlBase}${API.Recorder.dailyCalc}`, {params: {date: dateStr}}).catch((e) => {throw e})
   return responce.data;
 }

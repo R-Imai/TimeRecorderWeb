@@ -3,7 +3,7 @@ import React from 'react';
 
 type Props = {
   todaysTask: todaysTaskType[];
-  onClick: (task: todaysTaskType) => void;
+  onClick?: (task: todaysTaskType) => void;
 }
 
 const zeroPadding = (val: number, length: number) => {
@@ -17,9 +17,11 @@ const displayTime = (timeStr: string) => {
 
 const TaskRecords: React.FC<Props> = (props: Props) => {
 
+  const onClick = props.onClick ? props.onClick : (t: todaysTaskType) => {}
+
   const taskList = props.todaysTask.map((task) => {
     return (
-      <li key={task.taskId} onClick={() => {props.onClick(task)}}>
+      <li key={task.taskId} onClick={() => {onClick(task)}} className={props.onClick ? 'hover' : ''}>
         <span className="time">{displayTime(task.startTime)} - {displayTime(task.endTime)}</span>
         <span className="subject">{task.taskSubject}</span>
         <span className="name">{task.taskName}</span>
@@ -32,7 +34,7 @@ const TaskRecords: React.FC<Props> = (props: Props) => {
       {taskList}
     </ul>
   ):(
-    <div className="message mt-10">本日の業務履歴はまだありません。</div>
+    <div className="message mt-10">業務履歴はありません。</div>
   );
 
   return (
