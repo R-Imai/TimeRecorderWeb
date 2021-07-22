@@ -84,7 +84,7 @@ const SubjectList: React.FC<Props>  = (props: Props) => {
 
   return (
     <ul id={props.id} className={`${props.className} subject-list`}>
-      {subjectListElem}
+      {props.subjectList.length !== 0 ? subjectListElem : <div className="message mt-10">登録されているジャンルはまだありません。</div>}
     </ul>
   )
 }
