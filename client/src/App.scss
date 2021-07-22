@@ -688,7 +688,7 @@ button {
   .task-info {
     display: flex;
     .subject-info {
-      width: 80%;
+      width: calc(100% - 10rem);
       z-index: 1;
       background: linear-gradient(176deg, #eeeeee 0%, #fafffa 49%, #1e795a 50%, #fafffa 51%, #eeeeee 100%);
       div {
@@ -717,7 +717,7 @@ button {
       }
     }
     .start-time {
-      width: calc(20% - 2rem);
+      width: 10rem;
       padding: 0 1rem;
       height: 6rem;
       line-height: 6rem;
@@ -725,6 +725,9 @@ button {
       background-color: #f8f8f8;
       vertical-align: middle;
       text-align: center;
+      &::after {
+        content: " ～ ";
+      }
     }
   }
   .btn-space {

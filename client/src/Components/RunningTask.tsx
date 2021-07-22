@@ -14,7 +14,7 @@ const zeroPadding = (val: number, length: number) => {
 
 const displayTime = (timeStr: string) => {
   const time = new Date(Date.parse(timeStr));
-  return `${zeroPadding(time.getHours(), 2)}:${zeroPadding(time.getMinutes(), 2)} ～ `
+  return `${zeroPadding(time.getHours(), 2)}:${zeroPadding(time.getMinutes(), 2)}`
 }
 
 const RunningTask: React.FC<Props> = (props: Props) => {
