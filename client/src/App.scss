@@ -1009,12 +1009,12 @@ button {
         display: inline-block;
       }
       .time {
-        width: 8rem;
+        width: 8.5rem;
         border-right: solid 0.1rem #38be94;
         padding: 0.5rem 1rem;
       }
       .subject {
-        width: calc(40% - 4rem);
+        width: calc(50% - 4.5rem);
         padding: 0.5rem 0;
         padding-left: 2rem;
         font-weight: bold;
@@ -1024,7 +1024,7 @@ button {
         vertical-align: top;
       }
       .name {
-        width: calc(60% - 4rem);;
+        width: calc(50% - 4rem);;
         padding: 0.5rem 0;
         padding-left:1rem;
         overflow: hidden;
