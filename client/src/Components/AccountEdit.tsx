@@ -2,7 +2,7 @@ import React from 'react';
 
 import Message from './Message'
 
-type FormKey = 'id'|'name'|'pass1'|'pass2'|'image'
+type FormKey = 'id'|'name'|'pass1'|'pass2'//|'image'
 
 type FormData = {
   value: string;
@@ -25,7 +25,7 @@ type FormDetail = {
   required: boolean;
   maxLength: number|null;
   matchRef: FormKey|null;
-  type: 'text'|'password'|'image';
+  type: 'text'|'password'//|'image';
 }
 
 const formInfo: {[key in FormKey]: FormDetail} = {
@@ -57,13 +57,13 @@ const formInfo: {[key in FormKey]: FormDetail} = {
     matchRef: 'pass1',
     type: 'password'
   },
-  image: {
-    label: 'プロフィール画像',
-    required: false,
-    maxLength: null,
-    matchRef: null,
-    type: 'image'
-  },
+  // image: {
+  //   label: 'プロフィール画像',
+  //   required: false,
+  //   maxLength: null,
+  //   matchRef: null,
+  //   type: 'image'
+  // },
 }
 
 const mkImageForm = (accountInfo: Props['accountInfo'], key:FormKey) => {
@@ -188,7 +188,7 @@ const mkForm = (accountInfo:Props['accountInfo'], showList:string[]) => {
   }).map((key) => {
     return(
       <div key={`account-form-${key}`}>
-        { formInfo[key].type === 'image' ? mkImageForm(accountInfo, key): mkInput(accountInfo, key) }
+        { /*formInfo[key].type === 'image' ? mkImageForm(accountInfo, key): */mkInput(accountInfo, key) }
       </div>
     );
   });
