@@ -66,61 +66,61 @@ const formInfo: {[key in FormKey]: FormDetail} = {
   // },
 }
 
-const mkImageForm = (accountInfo: Props['accountInfo'], key:FormKey) => {
-  const formDetail = formInfo[key];
-  const formData = accountInfo[key];
-  if (typeof formData === 'undefined') {
-    return;
-  };
-  return (
-    <div>
-      <div>
-        <span
-          className="label"
-        >
-          {formDetail.label}
-        </span>
-      </div>
-      <img
-        className="icon-prev"
-        src={formData.imageSrc}
-        alt={formData.value}
-      />
-      <div className="btn-space">
-        <label
-          htmlFor={`account-form-${key}`}
-          className="img-select"
-        >
-          <span>ファイルを選択</span>
-          <input
-            id={`account-form-${key}`}
-            className="img-input"
-            type="file"
-            accept="image/*"
-            value={formData.value}
-            onChange={formData.onChange}
-          />
-        </label>
-        <span
-          className="clear-btn"
-          onClick={formData.imageClear}
-        >
-          クリア
-        </span>
-        {
-          typeof formData.imageDelete !== 'undefined' ? (
-            <span
-              className="clear-btn"
-              onClick={formData.imageDelete}
-            >
-              削除
-            </span>
-          ): ''
-        }
-      </div>
-    </div>
-  )
-}
+// const mkImageForm = (accountInfo: Props['accountInfo'], key:FormKey) => {
+//   const formDetail = formInfo[key];
+//   const formData = accountInfo[key];
+//   if (typeof formData === 'undefined') {
+//     return;
+//   };
+//   return (
+//     <div>
+//       <div>
+//         <span
+//           className="label"
+//         >
+//           {formDetail.label}
+//         </span>
+//       </div>
+//       <img
+//         className="icon-prev"
+//         src={formData.imageSrc}
+//         alt={formData.value}
+//       />
+//       <div className="btn-space">
+//         <label
+//           htmlFor={`account-form-${key}`}
+//           className="img-select"
+//         >
+//           <span>ファイルを選択</span>
+//           <input
+//             id={`account-form-${key}`}
+//             className="img-input"
+//             type="file"
+//             accept="image/*"
+//             value={formData.value}
+//             onChange={formData.onChange}
+//           />
+//         </label>
+//         <span
+//           className="clear-btn"
+//           onClick={formData.imageClear}
+//         >
+//           クリア
+//         </span>
+//         {
+//           typeof formData.imageDelete !== 'undefined' ? (
+//             <span
+//               className="clear-btn"
+//               onClick={formData.imageDelete}
+//             >
+//               削除
+//             </span>
+//           ): ''
+//         }
+//       </div>
+//     </div>
+//   )
+// }
 
 const canSubmit = (accountInfo:Props['accountInfo']) => {
   return (Object.keys(formInfo) as FormKey[]).every((key) => {
