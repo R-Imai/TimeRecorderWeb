@@ -52,6 +52,9 @@ type State = {
   showCopyMsg: boolean;
   showLogoutDialog: boolean;
   showUserSettingDialog: boolean;
+  taskCandidateStart: string[];
+  taskCandidateEditTask: string[];
+  taskCandidateEditRecord: string[];
 }
 
 class HomePage extends React.Component<RouteComponentProps, State> {
@@ -96,6 +99,9 @@ class HomePage extends React.Component<RouteComponentProps, State> {
       showCopyMsg: false,
       showLogoutDialog: false,
       showUserSettingDialog: false,
+      taskCandidateStart: [],
+      taskCandidateEditTask: [],
+      taskCandidateEditRecord: [],
     };
     this.reload = this.reload.bind(this);
     this.taskStart = this.taskStart.bind(this);
@@ -107,6 +113,7 @@ class HomePage extends React.Component<RouteComponentProps, State> {
     this.recordRowClick = this.recordRowClick.bind(this);
     this.recordEdit = this.recordEdit.bind(this);
     this.logout = this.logout.bind(this);
+    this.calcTaskCandidate = this.calcTaskCandidate.bind(this);
   }
 
   async componentDidMount() {
@@ -131,12 +138,23 @@ class HomePage extends React.Component<RouteComponentProps, State> {
       const todaysRecord = response[3].map((v) => {return this.convertTodaysTaskResponce(v)});
       const recordSummary = response[4].map((v) => {return this.convertCalcResultResponce(v)});
 
+      const activeSubjectName = activeSubjects.map((v) => {return v.name});
+      todaysRecord.forEach((v) => {
+        if (activeSubjectName.indexOf(v.taskSubject) < 0) {
+          activeSubjectName.push(v.taskSubject);
+        }
+      })
+
       this.setState({
         userInfo: userInfo,
-        activeSubjectName: activeSubjects.map((v) => {return v.name}),
+        activeSubjectName: activeSubjectName,
         runningTask: runningTask,
         todaysTask: todaysRecord,
         recordSummary: recordSummary,
+        taskCandidateStart: [],
+        taskCandidateEditTask: [],
+        taskCandidateEditRecord: [],
+  
       })
     } catch (e) {
       if (isApiErrorData(e)) {
@@ -307,6 +325,7 @@ class HomePage extends React.Component<RouteComponentProps, State> {
     this.setState({
       showTaskEditDialog: true,
       editTaskInfo: editInfo,
+      taskCandidateEditTask: this.calcTaskCandidate(this.state.runningTask.taskSubject),
     })
   }
 
@@ -358,6 +377,7 @@ class HomePage extends React.Component<RouteComponentProps, State> {
     const editInfo = Object.assign({}, task, {startHour: startHour, startMin: startMin, endHour: endHour, endMin: endMin});
     this.setState({
       showRecordEditDialog: true,
+      taskCandidateEditRecord: this.calcTaskCandidate(task.taskSubject),
       editRecordInfo: editInfo,
     })
   }
@@ -418,6 +438,19 @@ class HomePage extends React.Component<RouteComponentProps, State> {
     this.props.history.push('/login');
   }
 
+  calcTaskCandidate(subject: string) {
+    const taskCandidate: string[] = []
+    this.state.todaysTask.filter((v) => {
+      return v.taskSubject === subject;
+    }).forEach((w) => {
+      if (taskCandidate.indexOf(w.taskName) < 0) {
+        taskCandidate.push(w.taskName);
+      }
+    })
+
+    return taskCandidate;
+  }
+
   render() {
     const txt = this.state.userInfo === null ? '' : `${this.state.userInfo.name} さん`
 
@@ -426,7 +459,13 @@ class HomePage extends React.Component<RouteComponentProps, State> {
         taskSubject={this.state.inputTaskInfo.taskSubject}
         taskName={this.state.inputTaskInfo.taskName}
         suggestList={this.state.activeSubjectName}
-        onChangeSubject={(e: React.ChangeEvent<HTMLInputElement>) => {this.setState({inputTaskInfo: {taskSubject: e.target.value, taskName: this.state.inputTaskInfo.taskName}})}}
+        taskCandidate={this.state.taskCandidateStart}
+        onChangeSubject={(e: React.ChangeEvent<HTMLInputElement>) => {
+          this.setState({
+            inputTaskInfo: {taskSubject: e.target.value, taskName: this.state.inputTaskInfo.taskName},
+            taskCandidateStart: this.calcTaskCandidate(e.target.value),
+          });
+        }}
         onChangeName={(e: React.ChangeEvent<HTMLInputElement>) => {this.setState({inputTaskInfo: {taskSubject: this.state.inputTaskInfo.taskSubject, taskName: e.target.value}})}}
         onSubmit={this.taskStart}
       />
@@ -450,7 +489,13 @@ class HomePage extends React.Component<RouteComponentProps, State> {
         startHour={this.state.editTaskInfo.startHour}
         startMin={this.state.editTaskInfo.startMin}
         suggestList={this.state.activeSubjectName}
-        onChangeSubject={(e: React.ChangeEvent<HTMLInputElement>) => {this.setState({editTaskInfo: Object.assign({}, this.state.editTaskInfo, {taskSubject: e.target.value})})}}
+        taskCandidate={this.state.taskCandidateEditTask}
+        onChangeSubject={(e: React.ChangeEvent<HTMLInputElement>) => {
+          this.setState({
+            editTaskInfo: Object.assign({}, this.state.editTaskInfo, {taskSubject: e.target.value}),
+            taskCandidateEditTask: this.calcTaskCandidate(e.target.value), 
+          })
+        }}
         onChangeName={(e: React.ChangeEvent<HTMLInputElement>) => {this.setState({editTaskInfo: Object.assign({}, this.state.editTaskInfo, {taskName: e.target.value})})}}
         onChangeHour={(e: React.ChangeEvent<HTMLInputElement>) => {this.setState({editTaskInfo: Object.assign({}, this.state.editTaskInfo, {startHour: e.target.value})})}}
         onChangeMin={(e: React.ChangeEvent<HTMLInputElement>) => {this.setState({editTaskInfo: Object.assign({}, this.state.editTaskInfo, {startMin: e.target.value})})}}
@@ -468,7 +513,13 @@ class HomePage extends React.Component<RouteComponentProps, State> {
         endHour={this.state.editRecordInfo.endHour}
         endMin={this.state.editRecordInfo.endMin}
         suggestList={this.state.activeSubjectName}
-        onChangeSubject={(e: React.ChangeEvent<HTMLInputElement>) => {this.setState({editRecordInfo: Object.assign({}, this.state.editRecordInfo, {taskSubject: e.target.value})})}}
+        taskCandidate={this.state.taskCandidateEditRecord}
+        onChangeSubject={(e: React.ChangeEvent<HTMLInputElement>) => {
+          this.setState({
+            editRecordInfo: Object.assign({}, this.state.editRecordInfo, {taskSubject: e.target.value}),
+            taskCandidateEditRecord: this.calcTaskCandidate(e.target.value),
+          })
+        }}
         onChangeName={(e: React.ChangeEvent<HTMLInputElement>) => {this.setState({editRecordInfo: Object.assign({}, this.state.editRecordInfo, {taskName: e.target.value})})}}
         onChangeStartHour={(e: React.ChangeEvent<HTMLInputElement>) => {this.setState({editRecordInfo: Object.assign({}, this.state.editRecordInfo, {startHour: e.target.value})})}}
         onChangeStartMin={(e: React.ChangeEvent<HTMLInputElement>) => {this.setState({editRecordInfo: Object.assign({}, this.state.editRecordInfo, {startMin: e.target.value})})}}

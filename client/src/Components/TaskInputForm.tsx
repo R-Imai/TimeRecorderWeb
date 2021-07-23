@@ -1,6 +1,7 @@
 import React from 'react';
 
 type Props = {
+  id: string;
   children?: React.ReactNode,
   className?: string,
   taskSubject: string,
@@ -10,6 +11,7 @@ type Props = {
   endHour?: string,
   endMin?: string,
   suggestList: string[],
+  taskCandidate?: string[],
   onChangeSubject: (e: React.ChangeEvent<HTMLInputElement>) => void,
   onChangeName: (e: React.ChangeEvent<HTMLInputElement>) => void,
   onChangeStartHour?: (e: React.ChangeEvent<HTMLInputElement>) => void,
@@ -27,10 +29,15 @@ const TaskInputForm: React.FC<Props> = (props: Props) => {
     return (<option value={v} key={v} />)
   })
 
+  const taskCandidate = props.taskCandidate ? props.taskCandidate : [];
+  const suggestTaskNameListElements = taskCandidate.map((v) => {
+    return (<option value={v} key={v} />)
+  });
+
   const startTimeElement = isShowTimeInput(props.startHour, props.startMin, props.onChangeStartHour, props.onChangeStartMin) ? (
     <div>
       <label
-        htmlFor="task-input-form-start-hour"
+        htmlFor={`${props.id}-task-input-form-start-hour`}
         className="label"
       >
         開始時刻
@@ -40,7 +47,7 @@ const TaskInputForm: React.FC<Props> = (props: Props) => {
       </div>
       <fieldset className="task-input-form-time start">
         <input
-          id="task-input-form-start-hour"
+          id={`${props.id}-task-input-form-start-hour`}
           value={props.startHour}
           onChange={props.onChangeStartHour}
           placeholder="開始時"
@@ -49,7 +56,7 @@ const TaskInputForm: React.FC<Props> = (props: Props) => {
           max="23"
         />:
         <input
-          id="task-input-form-start-min"
+          id={`${props.id}-task-input-form-start-min`}
           value={props.startMin}
           onChange={props.onChangeStartMin}
           placeholder="開始分"
@@ -64,7 +71,7 @@ const TaskInputForm: React.FC<Props> = (props: Props) => {
   const endTimeElement = isShowTimeInput(props.endHour, props.endMin, props.onChangeEndHour, props.onChangeEndMin) ? (
     <div>
       <label
-        htmlFor="task-input-form-end-hour"
+        htmlFor={`${props.id}-task-input-form-end-hour`}
         className="label"
       >
         終了時刻
@@ -74,7 +81,7 @@ const TaskInputForm: React.FC<Props> = (props: Props) => {
       </div>
       <fieldset className="task-input-form-time">
         <input
-          id="task-input-form-end-hour"
+          id={`${props.id}-task-input-form-end-hour`}
           value={props.endHour}
           onChange={props.onChangeEndHour}
           placeholder="終了時"
@@ -83,7 +90,7 @@ const TaskInputForm: React.FC<Props> = (props: Props) => {
           max="23"
         />:
         <input
-          id="task-input-form-end-min"
+          id={`${props.id}-task-input-form-end-min`}
           value={props.endMin}
           onChange={props.onChangeEndMin}
           placeholder="終了分"
@@ -98,7 +105,7 @@ const TaskInputForm: React.FC<Props> = (props: Props) => {
   return (
     <form className={props.className}>
       <label
-        htmlFor="task-input-form-subject"
+        htmlFor={`${props.id}-task-input-form-subject`}
         className="label"
       >
         作業ジャンル
@@ -107,31 +114,35 @@ const TaskInputForm: React.FC<Props> = (props: Props) => {
         必須
       </div>
       <input
-        id="task-input-form-subject"
+        id={`${props.id}-task-input-form-subject`}
         value={props.taskSubject}
         onChange={props.onChangeSubject}
         placeholder="作業ジャンル"
         className="input-form"
         type="text"
-        list="subject-sudgest"
+        list={`${props.id}-subject-sudgest`}
       />
-      <datalist id="subject-sudgest">
+      <datalist id={`${props.id}-subject-sudgest`}>
         {suggestListElements}
       </datalist>
       <label
-        htmlFor="task-input-form-name"
+        htmlFor={`${props.id}-task-input-form-name`}
         className="label"
       >
         作業名
       </label>
       <input
-        id="task-input-form-name"
+        id={`${props.id}-task-input-form-name`}
         value={props.taskName}
         onChange={props.onChangeName}
         placeholder="作業名"
         className="input-form"
         type="text"
+        list={`${props.id}-name-sudgest`}
       />
+      <datalist id={`${props.id}-name-sudgest`}>
+        {suggestTaskNameListElements}
+      </datalist>
       <div className="time-input">
         {startTimeElement}
         {endTimeElement}

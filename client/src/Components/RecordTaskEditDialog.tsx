@@ -3,6 +3,7 @@ import React from 'react';
 import TaskInputForm from './TaskInputForm';
 
 type Props = {
+  id?: string,
   taskSubject: string,
   taskName: string,
   startHour: string,
@@ -10,6 +11,7 @@ type Props = {
   endHour: string,
   endMin: string,
   suggestList: string[],
+  taskCandidate?: string[],
   onChangeSubject: (e: React.ChangeEvent<HTMLInputElement>) => void,
   onChangeName: (e: React.ChangeEvent<HTMLInputElement>) => void,
   onChangeStartHour: (e: React.ChangeEvent<HTMLInputElement>) => void,
@@ -26,6 +28,8 @@ const RecordTaskEditDialog: React.FC<Props> = (props: Props) => {
     props.onSubmit();
   }
 
+  const id = props.id ? props.id : 'record-edit';
+
   return (
     <div className="dialog">
       <div className="dialog-main task-input-form">
@@ -33,6 +37,7 @@ const RecordTaskEditDialog: React.FC<Props> = (props: Props) => {
           タスク履歴修正
         </h1>
         <TaskInputForm
+          id={id}
           className="dialog-content"
           taskSubject={props.taskSubject}
           taskName={props.taskName}
@@ -41,6 +46,7 @@ const RecordTaskEditDialog: React.FC<Props> = (props: Props) => {
           endHour={props.endHour}
           endMin={props.endMin}
           suggestList={props.suggestList}
+          taskCandidate={props.taskCandidate}
           onChangeSubject={props.onChangeSubject}
           onChangeName={props.onChangeName}
           onChangeStartHour={props.onChangeStartHour}
