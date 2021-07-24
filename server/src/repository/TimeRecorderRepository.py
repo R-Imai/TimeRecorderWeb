@@ -36,7 +36,7 @@ class TimeRecorderRepository:
                 task_record
             WHERE user_cd = %(user_cd)s
                 AND %(start_time)s <= start_time
-                AND end_time <= %(end_time)s
+                AND start_time <= %(end_time)s
             ORDER BY start_time ASC;
             """
         self.sql_update_task_record = """
@@ -110,7 +110,7 @@ class TimeRecorderRepository:
                 AND task_subject_config.user_cd = %(user_cd)s
             WHERE task_record.user_cd = %(user_cd)s
                 AND %(start_time)s <= start_time
-                AND end_time <= %(end_time)s;
+                AND start_time <= %(end_time)s;
             """
         self.sql_get_task_subject_between_sort_val = """
             SELECT
