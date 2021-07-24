@@ -68,6 +68,7 @@ class AuthService:
 
     def auth_token(self, token:str) -> str:
         now = datetime.now()
+        is_outdate = False
         try:
             conn = connection.mk_connection()
             with conn.cursor() as cur:
@@ -76,11 +77,21 @@ class AuthService:
                     raise AuthenticationException("認証エラーです。ログアウトして再度ログインしてください。")
                 user_cd, limit_date = res
                 if limit_date < now:
-                    self.repository.delete_outdate_active_token(cur)
+                    is_outdate = True
                     raise AuthenticationException("認証トークンの期限が切れました。再度ログインしてください。")
                 conn.commit()
         except Exception as e:
             conn.rollback()
+            try:
+                conn2 = connection.mk_connection()
+                with conn2.cursor() as cur:
+                    self.repository.delete_outdate_active_token(cur)
+                    conn2.commit()
+            except Exception as e2:
+                conn2.rollback()
+                raise e
+            finally:
+                conn2.close()
             raise e
         finally:
             conn.close()
