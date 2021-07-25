@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException, Response, Cookie
 from starlette.middleware.cors import CORSMiddleware
 from typing import List, Tuple, Optional
 from fastapi.encoders import jsonable_encoder
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, FileResponse
 from starlette.staticfiles import StaticFiles
 from datetime import date
 import traceback
@@ -453,3 +453,21 @@ def delete_subject(subject_id: str, TOKEN: Optional[str] = Cookie(None)):
             status_code=500,
             detail="予期せぬエラーが発生しました。",
         )
+
+@app.get("/api/export/record/csv", tags=["TimeRecorder"])
+def csv_download(start_date: date, end_date: date, TOKEN: Optional[str] = Cookie(None)):
+    user_cd = __auth_token(TOKEN)
+    try :
+        path = recorder_service.csv_download(user_cd, start_date, end_date)
+    except RecorderException as e:
+        raise HTTPException(
+            status_code=e.status_code,
+            detail=str(e),
+        )
+    except Exception as e1:
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=500,
+            detail="予期せぬエラーが発生しました。",
+        )
+    return FileResponse(path, filename=f"{user_cd}-{start_date.year}_{start_date.month}_{start_date.day}-{end_date.year}_{end_date.month}_{end_date.day}.csv")
