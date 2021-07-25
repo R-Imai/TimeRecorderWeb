@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException, Response, Cookie
 from starlette.middleware.cors import CORSMiddleware
 from typing import List, Tuple, Optional
 from fastapi.encoders import jsonable_encoder
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, FileResponse
 from starlette.staticfiles import StaticFiles
 from datetime import date
 import traceback
@@ -31,7 +31,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.mount("/storage", StaticFiles(directory=STORAGE_PATH), name="storage")
+# app.mount("/storage", StaticFiles(directory=STORAGE_PATH), name="storage")
 
 recorder_service = TimeRecorderService()
 auth_service = AuthService()
@@ -343,12 +343,12 @@ def record_edit(post_param: tr_model.RecordTask, TOKEN: Optional[str] = Cookie(N
             detail="予期せぬエラーが発生しました。",
         )
 
-# 画像保存
-@app.post("/api/graph", response_model=tr_model.ResponceGraphSummary, tags=["TimeRecorder"])
+# 集計データ取得
+@app.post("/api/graph/summary", response_model=List[tr_model.GraphSummaryData], tags=["TimeRecorder"])
 def graph_save(target:date, TOKEN: Optional[str] = Cookie(None)):
     user_cd = __auth_token(TOKEN)
     try:
-        path, data = recorder_service.save_month_graph(user_cd, target)
+        data = recorder_service.month_summary(user_cd, target)
     except RecorderException as e:
         raise HTTPException(
             status_code=e.status_code,
@@ -360,7 +360,26 @@ def graph_save(target:date, TOKEN: Optional[str] = Cookie(None)):
             status_code=500,
             detail="予期せぬエラーが発生しました。",
         )
-    return __mk_responce_json(tr_model.ResponceGraphSummary(path = path, data = data))
+    return __mk_responce_json(data)
+
+# 画像保存取得
+@app.get("/api/graph/fig", tags=["TimeRecorder"])
+def get_graph_fig(target:date, TOKEN: Optional[str] = Cookie(None)):
+    user_cd = __auth_token(TOKEN)
+    try:
+        path = recorder_service.save_month_graph(user_cd, target)
+    except RecorderException as e:
+        raise HTTPException(
+            status_code=e.status_code,
+            detail=str(e),
+        )
+    except Exception as e1:
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=500,
+            detail="予期せぬエラーが発生しました。",
+        )
+    return FileResponse(path)
 
 # カテゴリ全取得
 @app.get("/api/setting/subject", response_model=List[tr_model.SubjectConfigData], tags=["TimeRecorder"])

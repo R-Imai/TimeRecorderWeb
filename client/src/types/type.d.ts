@@ -15,7 +15,7 @@ interface todaysTaskType extends runningTaskType {
 interface recordSummaryType {
   taskSubject: string,
   taskName: string,
-  passedSecond: number,
+  passedMinutes: number,
   passedTimeStr: string,
 }
 

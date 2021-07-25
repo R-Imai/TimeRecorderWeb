@@ -40,7 +40,7 @@ class TimeRecorderService:
         df["passed_time"] = df["end_time"] - df["start_time"]
         group = df.groupby(["task_subject", "task_name"])
         summary_df = group.sum()[["passed_time"]]
-        ret_data = [model.SummaryData(task_subject=index[0], task_name=index[1], passed_second=row.passed_time.total_seconds(), passed_time_str=self.__timedelta2str(row.passed_time)) for index, row in summary_df.iterrows()]
+        ret_data = [model.SummaryData(task_subject=index[0], task_name=index[1], passed_minutes=row.passed_time.total_seconds()//60, passed_time_str=self.__timedelta2str(row.passed_time)) for index, row in summary_df.iterrows()]
         return ret_data
 
     def __calc_graph_data(self, records: List[model.RecordTaskJoinColor]) -> List[model.GraphSummaryData]:
@@ -51,7 +51,7 @@ class TimeRecorderService:
         df = df.fillna({"color": ""})
         group = df.groupby(["task_subject", "color"])
         summary_df = group.sum()[["passed_time"]].sort_values("passed_time", ascending=False)
-        ret_data = [model.GraphSummaryData(task_subject=index[0], color=index[1] if index[1] != "" else None, passed_second=row.passed_time.total_seconds(), passed_time_str=self.__timedelta2str(row.passed_time)) for index, row in summary_df.iterrows()]
+        ret_data = [model.GraphSummaryData(task_subject=index[0], color=index[1] if index[1] != "" else None, passed_minutes=row.passed_time.total_seconds()//60, passed_time_str=self.__timedelta2str(row.passed_time)) for index, row in summary_df.iterrows()]
         return ret_data
 
     def __hex2color(self, hex_c):
@@ -73,7 +73,7 @@ class TimeRecorderService:
 
         for i, elem in enumerate(summary_data):
             label.append("{0} [{1}]".format(elem.task_subject, elem.passed_time_str))
-            data.append(elem.passed_second)
+            data.append(elem.passed_minutes)
             if elem.color is not None:
                 colors[i] = self.__hex2color(elem.color)
 
@@ -314,12 +314,12 @@ class TimeRecorderService:
         finally:
             conn.close()
 
-    def save_month_graph(self, user_cd:str, target:date) -> Tuple[str, List[model.GraphSummaryData]]:
+    def month_summary(self, user_cd:str, target:date) -> List[model.GraphSummaryData]:
         start_time = datetime(year = target.year, month = target.month, day = 1, hour = DAY_CHANGE_HOUR, minute = 0, second = 0, microsecond = 0)
         end_time = (start_time + relativedelta(months = 1)).replace(day = 1, hour = DAY_CHANGE_HOUR, minute = 0, second = 0, microsecond = 0)
-        return self.save_graph(user_cd, start_time, end_time, "month_graph")
-
-    def save_graph(self, user_cd:str, start_time:datetime, end_time:datetime, filename:Optional[str]) -> Tuple[str, List[model.GraphSummaryData]]:
+        return self.get_summary_data(user_cd, start_time, end_time)
+    
+    def get_summary_data(self, user_cd:str, start_time:datetime, end_time:datetime) -> List[model.GraphSummaryData]:
         try:
             conn = connection.mk_connection()
             with conn.cursor() as cur:
@@ -331,6 +331,15 @@ class TimeRecorderService:
         finally:
             conn.close()
         summary_data = self.__calc_graph_data(records)
+        return summary_data
+
+    def save_month_graph(self, user_cd:str, target:date) -> str:
+        start_time = datetime(year = target.year, month = target.month, day = 1, hour = DAY_CHANGE_HOUR, minute = 0, second = 0, microsecond = 0)
+        end_time = (start_time + relativedelta(months = 1)).replace(day = 1, hour = DAY_CHANGE_HOUR, minute = 0, second = 0, microsecond = 0)
+        return self.save_graph(user_cd, start_time, end_time, "month_graph")
+
+    def save_graph(self, user_cd:str, start_time:datetime, end_time:datetime, filename:Optional[str]) -> str:
+        summary_data = self.get_summary_data(user_cd, start_time, end_time)
         if filename is None:
             filename = f"{start_time.year}_{start_time.month}_{start_time.day}-{end_time.year}_{end_time.month}_{end_time.day}"
         save_dir = f"{STORAGE_PATH}/graph/{user_cd}"
@@ -341,7 +350,7 @@ class TimeRecorderService:
         id = str(uuid.uuid4())[-12:]
         save_path = f"{save_dir}/{filename}-{id}.png"
         self.__plot_data(summary_data, save_path)
-        return (save_path, summary_data)
+        return save_path
 
     def delete_subject(self, user_cd:str, subject_id:str):
         try:

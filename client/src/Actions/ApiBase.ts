@@ -24,7 +24,8 @@ export const API = {
     recordToday: "/api/record/today",
     record: "/api/record",
     recordTask: "/api/record/task",
-    graph: "/api/graph",
+    graphSummary: "/api/graph/summary",
+    graphFig: "/api/graph/fig",
     subject: "/api/setting/subject",
     activeSubject: "/api/setting/subject/active",
   }

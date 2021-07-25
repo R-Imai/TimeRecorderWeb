@@ -211,7 +211,7 @@ class HomePage extends React.Component<RouteComponentProps, State> {
     return {
       taskSubject: responce.task_subject,
       taskName: responce.task_name,
-      passedSecond: responce.passed_second,
+      passedMinutes: responce.passed_minutes,
       passedTimeStr: responce.passed_time_str,
     };
   }

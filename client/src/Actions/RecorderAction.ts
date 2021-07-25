@@ -29,20 +29,15 @@ export type TaskRecordType = {
 export type CalcResultType = {
   task_subject: string;
   task_name: string;
-  passed_second: number
+  passed_minutes: number
   passed_time_str: string;
 }
 
-export type CalcGraphType = {
-  path: string,
-  data: [
-    {
-      task_subject: string,
-      passed_second: number,
-      passed_time_str: string,
-      color: string
-    }
-  ]
+export type CalcGraphSummaryType = {
+  task_subject: string,
+  passed_minutes: number,
+  passed_time_str: string,
+  color: string,
 }
 
 export async function getActiveSubjects() {
@@ -116,6 +111,19 @@ export async function addSubject(subjctInfo: AddSubjectType) {
 export async function calcMonthGraph() {
   const now = new Date();
   const dateStr = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
-  const responce = await axios.post<CalcGraphType>(`${API.UrlBase}${API.Recorder.graph}`, {}, {params: {target: dateStr}}).catch((e) => {throw e})
+  const responce = await axios.post<CalcGraphSummaryType[]>(`${API.UrlBase}${API.Recorder.graphSummary}`, {}, {params: {target: dateStr}}).catch((e) => {throw e})
   return responce.data;
+}
+
+export async function calcMonthGraphFig() {
+  const now = new Date();
+  const dateStr = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
+  const responce = await axios.get<ArrayBuffer>(`${API.UrlBase}${API.Recorder.graphFig}`, {responseType: "arraybuffer", params: {target: dateStr}}).catch((e) => {throw e})
+  const bytes  = new Uint8Array(responce.data);
+  let binaryData = '';
+  for (var i = 0, len = bytes.byteLength; i < len; i++) {
+    binaryData += String.fromCharCode(bytes[i]);
+  }
+  const imgStr = btoa(binaryData);
+  return `data:image/png;base64,${imgStr}`;
 }
