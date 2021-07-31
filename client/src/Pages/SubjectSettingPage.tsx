@@ -295,13 +295,13 @@ class SubjectSettingPage extends React.Component<RouteComponentProps , State> {
                 type="text"
                 className="subjct-name"
                 value={this.state.addSubjectInfo.name}
-                onChange={(e) => {this.setState({addSubjectInfo: Object.assign(this.state.addSubjectInfo, {name: e.target.value})})}}
+                onChange={(e) => {this.setState({addSubjectInfo: Object.assign({}, this.state.addSubjectInfo, {name: e.target.value})})}}
               />
               <input
                 type="color"
                 className="subjct-color"
                 value={this.state.addSubjectInfo.color}
-                onChange={(e) => {this.setState({addSubjectInfo: Object.assign(this.state.addSubjectInfo, {color: e.target.value})})}}
+                onChange={(e) => {this.setState({addSubjectInfo: Object.assign({}, this.state.addSubjectInfo, {color: e.target.value})})}}
               />
               <button
                 onClick={this.onSubjectAdd}
