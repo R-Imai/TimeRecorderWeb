@@ -57,6 +57,8 @@ type State = {
   taskCandidateEditRecord: string[];
 }
 
+const DAY_CHANGE_HOUR = 5;
+
 class HomePage extends React.Component<RouteComponentProps, State> {
   constructor(props: RouteComponentProps) {
     super(props);
@@ -370,9 +372,16 @@ class HomePage extends React.Component<RouteComponentProps, State> {
       showIndicator: true,
       showTaskEditDialog: false,
     })
+    const inputHour = Number.parseInt(this.state.editTaskInfo.startHour);
+    const inputMin = Number.parseInt(this.state.editTaskInfo.startMin);
     const startTime = new Date(Date.parse(this.state.editTaskInfo.startTime));
-    startTime.setHours(Number.parseInt(this.state.editTaskInfo.startHour));
-    startTime.setMinutes(Number.parseInt(this.state.editTaskInfo.startMin));
+    if (startTime.getHours() < DAY_CHANGE_HOUR && DAY_CHANGE_HOUR <= inputHour) {
+      startTime.setDate(startTime.getDate() - 1)
+    } else if (DAY_CHANGE_HOUR <= startTime.getHours() && inputHour < DAY_CHANGE_HOUR) {
+      startTime.setDate(startTime.getDate() + 1)
+    }
+    startTime.setHours(inputHour);
+    startTime.setMinutes(inputMin);
     const startTimeStr = `${startTime.getFullYear()}-${startTime.getMonth() + 1}-${startTime.getDate()} ${startTime.getHours()}:${startTime.getMinutes()}`
     const requestParam = {
       task_subject: this.state.editTaskInfo.taskSubject,
@@ -432,14 +441,31 @@ class HomePage extends React.Component<RouteComponentProps, State> {
       showIndicator: true,
       showRecordEditDialog: false,
     })
+    
+    const inputStartHour = Number.parseInt(this.state.editRecordInfo.startHour);
+    const inputStartMin = Number.parseInt(this.state.editRecordInfo.startMin);
     const startTime = new Date(Date.parse(this.state.editRecordInfo.startTime));
-    startTime.setHours(Number.parseInt(this.state.editRecordInfo.startHour));
-    startTime.setMinutes(Number.parseInt(this.state.editRecordInfo.startMin));
+    if (startTime.getHours() < DAY_CHANGE_HOUR && DAY_CHANGE_HOUR <= inputStartHour) {
+      startTime.setDate(startTime.getDate() - 1)
+    } else if (DAY_CHANGE_HOUR <= startTime.getHours() && inputStartHour < DAY_CHANGE_HOUR) {
+      startTime.setDate(startTime.getDate() + 1)
+    }
+    startTime.setHours(inputStartHour);
+    startTime.setMinutes(inputStartMin);
     const startTimeStr = `${startTime.getFullYear()}-${startTime.getMonth() + 1}-${startTime.getDate()} ${startTime.getHours()}:${startTime.getMinutes()}`
+    
+    const inputEndHour = Number.parseInt(this.state.editRecordInfo.endHour);
+    const inputEndMin = Number.parseInt(this.state.editRecordInfo.endMin);
     const endTime = new Date(Date.parse(this.state.editRecordInfo.endTime));
-    endTime.setHours(Number.parseInt(this.state.editRecordInfo.endHour));
-    endTime.setMinutes(Number.parseInt(this.state.editRecordInfo.endMin));
+    if (endTime.getHours() < DAY_CHANGE_HOUR && DAY_CHANGE_HOUR <= inputEndHour) {
+      endTime.setDate(endTime.getDate() - 1)
+    } else if (DAY_CHANGE_HOUR <= endTime.getHours() && inputEndHour < DAY_CHANGE_HOUR) {
+      endTime.setDate(endTime.getDate() + 1)
+    }
+    endTime.setHours(inputEndHour);
+    endTime.setMinutes(inputEndMin);
     const endTimeStr = `${endTime.getFullYear()}-${endTime.getMonth() + 1}-${endTime.getDate()} ${endTime.getHours()}:${endTime.getMinutes()}`
+
     const requestParam = {
       task_id: this.state.editRecordInfo.taskId,
       task_subject: this.state.editRecordInfo.taskSubject,
