@@ -825,8 +825,10 @@ button {
 
 .record-space {
   margin: 0 1rem;
+  margin-bottom: 1rem;
   @media screen and (min-width: 1200px) {
     margin: 0;
+    margin-bottom: 1rem;
     display: flex;
     & > div {
       width: calc(50% - 2rem);
@@ -1108,6 +1110,7 @@ button {
     background: none;
     font-size: 0.8rem;
     padding: 0.2rem 0.5rem;
+    margin: 0.2rem;
     border-radius: 0.5rem;
     z-index: 1;
     &::before {
