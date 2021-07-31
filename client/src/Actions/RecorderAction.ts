@@ -112,6 +112,9 @@ export async function addSubject(subjctInfo: AddSubjectType) {
 
 export async function calcMonthGraph() {
   const now = new Date();
+  if (now.getHours() < DAY_CHANGE_HOUR) {
+    now.setDate(now.getDate() - 1)
+  }
   const dateStr = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
   const responce = await axios.post<CalcGraphSummaryType[]>(`${API.UrlBase}${API.Recorder.graphSummary}`, {}, {params: {target: dateStr}}).catch((e) => {throw e})
   return responce.data;
