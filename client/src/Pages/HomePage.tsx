@@ -233,12 +233,12 @@ class HomePage extends React.Component<RouteComponentProps, State> {
       const startTask = this.convertRunningTaskResponce(responce);
       this.setState({
         runningTask: startTask,
-        showIndicator: false,
         inputTaskInfo: {
           taskSubject: '',
           taskName: '',
         }
       });
+      await this.reload();
     } catch (e) {
       if (isApiErrorData(e)) {
         if (e.response?.status === 401) {
