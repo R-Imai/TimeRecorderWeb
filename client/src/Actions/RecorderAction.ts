@@ -40,6 +40,8 @@ export type CalcGraphSummaryType = {
   color: string,
 }
 
+export const DAY_CHANGE_HOUR = 5;
+
 export async function getActiveSubjects() {
   const responce = await axios.get<SubjectType[]>(`${API.UrlBase}${API.Recorder.activeSubject}`).catch((e) => {throw e})
   return responce.data;
@@ -117,6 +119,9 @@ export async function calcMonthGraph() {
 
 export async function calcMonthGraphFig() {
   const now = new Date();
+  if (now.getHours() < DAY_CHANGE_HOUR) {
+    now.setDate(now.getDate() - 1)
+  }
   const dateStr = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
   const responce = await axios.get<ArrayBuffer>(`${API.UrlBase}${API.Recorder.graphFig}`, {responseType: "arraybuffer", params: {target: dateStr}}).catch((e) => {throw e})
   const bytes  = new Uint8Array(responce.data);

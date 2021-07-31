@@ -178,8 +178,8 @@ class TimeRecorderService:
 
     def get_today_record(self, user_cd) -> List[model.RecordTask]:
         now = datetime.now()
-        day = now.day if now.hour > DAY_CHANGE_HOUR else (now - timedelta(days = 1)).day
-        start_time = now.replace(day = day, hour = DAY_CHANGE_HOUR, minute = 0, second = 0, microsecond = 0)
+        target_day = now if now.hour > DAY_CHANGE_HOUR else (now - timedelta(days = 1))
+        start_time = target_day.replace(hour = DAY_CHANGE_HOUR, minute = 0, second = 0, microsecond = 0)
         end_time = start_time + timedelta(days=1)
         try:
             conn = connection.mk_connection()
@@ -228,8 +228,8 @@ class TimeRecorderService:
     
     def calc_daily_summary_today(self, user_cd:str) -> List[model.SummaryData]:
         now = datetime.now()
-        day = now.day if now.hour > DAY_CHANGE_HOUR else (now - timedelta(days = 1)).day
-        start_time = now.replace(day = day, hour = DAY_CHANGE_HOUR, minute = 0, second = 0, microsecond = 0)
+        target_day = now if now.hour > DAY_CHANGE_HOUR else (now - timedelta(days = 1))
+        start_time = target_day.replace(hour = DAY_CHANGE_HOUR, minute = 0, second = 0, microsecond = 0)
         end_time = start_time + timedelta(days=1)
         try:
             conn = connection.mk_connection()

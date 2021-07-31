@@ -15,7 +15,7 @@ import TaskRecords from '../Components/TaskRecords'
 import RecordSummary from '../Components/RecordSummary'
 
 import {getUserInfo, logout} from '../Actions/AuthAction'
-import {getActiveSubjects, taskStart, getRunningTask, taskEnd, taskEdit, taskCancel, recordToday, recordEdit, calcToday, StartTaskInfoType, TaskRecordType, CalcResultType} from '../Actions/RecorderAction'
+import {getActiveSubjects, taskStart, getRunningTask, taskEnd, taskEdit, taskCancel, recordToday, recordEdit, calcToday, StartTaskInfoType, TaskRecordType, CalcResultType, DAY_CHANGE_HOUR} from '../Actions/RecorderAction'
 import logo from '../Image/logo.svg';
 
 interface EditTaskType extends startTaskType {
@@ -56,8 +56,6 @@ type State = {
   taskCandidateEditTask: string[];
   taskCandidateEditRecord: string[];
 }
-
-const DAY_CHANGE_HOUR = 5;
 
 class HomePage extends React.Component<RouteComponentProps, State> {
   constructor(props: RouteComponentProps) {
