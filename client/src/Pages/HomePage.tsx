@@ -239,6 +239,9 @@ class HomePage extends React.Component<RouteComponentProps, State> {
         }
       });
       await this.reload();
+      this.setState({
+        errMsg: '',
+      })
     } catch (e) {
       if (isApiErrorData(e)) {
         if (e.response?.status === 401) {
@@ -246,10 +249,15 @@ class HomePage extends React.Component<RouteComponentProps, State> {
           console.log(e.response.data.detail);
           this.props.history.push('/error/401');
         }
+        if (e.response?.status === 422) {
+          this.setState({
+            errMsg: '入力の形式が誤っています',
+          })
+          return;
+        }
         this.setState({
           errMsg: e.response?.data.detail ? e.response?.data.detail : '予期せぬエラーが発生しました。',
         })
-        setTimeout(() => {this.setState({errMsg: ""})}, 5000)
         if (e.response?.status === 409) {
           await this.reload();
         }
@@ -268,6 +276,9 @@ class HomePage extends React.Component<RouteComponentProps, State> {
     try {
       await taskEnd();
       await this.reload();
+      this.setState({
+        errMsg: '',
+      })
     } catch (e) {
       if (isApiErrorData(e)) {
         if (e.response?.status === 401) {
@@ -275,10 +286,15 @@ class HomePage extends React.Component<RouteComponentProps, State> {
           console.log(e.response.data.detail);
           this.props.history.push('/error/401');
         }
+        if (e.response?.status === 422) {
+          this.setState({
+            errMsg: '入力の形式が誤っています',
+          })
+          return;
+        }
         this.setState({
           errMsg: e.response?.data.detail ? e.response?.data.detail : '予期せぬエラーが発生しました。',
         })
-        setTimeout(() => {this.setState({errMsg: ""})}, 5000)
         if (e.response?.status === 404) {
           await this.reload();
         }
@@ -304,12 +320,21 @@ class HomePage extends React.Component<RouteComponentProps, State> {
     try {
       await taskCancel();
       await this.reload();
+      this.setState({
+        errMsg: '',
+      })
     } catch (e) {
       if (isApiErrorData(e)) {
         if (e.response?.status === 401) {
           console.error('Auth');
           console.log(e.response.data.detail);
           this.props.history.push('/error/401');
+        }
+        if (e.response?.status === 422) {
+          this.setState({
+            errMsg: '入力の形式が誤っています',
+          })
+          return;
         }
         this.setState({
           errMsg: e.response?.data.detail ? e.response?.data.detail : '予期せぬエラーが発生しました。',
@@ -357,12 +382,21 @@ class HomePage extends React.Component<RouteComponentProps, State> {
     try {
       await taskEdit(requestParam);
       await this.reload();
+      this.setState({
+        errMsg: '',
+      })
     } catch (e) {
       if (isApiErrorData(e)) {
         if (e.response?.status === 401) {
           console.error('Auth');
           console.log(e.response.data.detail);
           this.props.history.push('/error/401');
+        }
+        if (e.response?.status === 422) {
+          this.setState({
+            errMsg: '入力の形式が誤っています',
+          })
+          return;
         }
         this.setState({
           errMsg: e.response?.data.detail ? e.response?.data.detail : '予期せぬエラーが発生しました。',
@@ -422,6 +456,12 @@ class HomePage extends React.Component<RouteComponentProps, State> {
           console.error('Auth');
           console.log(e.response.data.detail);
           this.props.history.push('/error/401');
+        }
+        if (e.response?.status === 422) {
+          this.setState({
+            errMsg: '入力の形式が誤っています',
+          })
+          return;
         }
         this.setState({
           errMsg: e.response?.data.detail ? e.response?.data.detail : '予期せぬエラーが発生しました。',
