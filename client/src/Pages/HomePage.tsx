@@ -249,6 +249,10 @@ class HomePage extends React.Component<RouteComponentProps, State> {
         this.setState({
           errMsg: e.response?.data.detail ? e.response?.data.detail : '予期せぬエラーが発生しました。',
         })
+        setTimeout(() => {this.setState({errMsg: ""})}, 5000)
+        if (e.response?.status === 409) {
+          await this.reload();
+        }
       }
     } finally {
       this.setState({
