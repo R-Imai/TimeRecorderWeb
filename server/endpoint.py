@@ -61,7 +61,7 @@ def __auth_token(token: str):
 # ルート
 @app.get("/api/", response_model=app_model.AppInfo)
 def root():
-    info = app_model.AppInfo(version="0.0.1")
+    info = app_model.AppInfo(version="1.0.0")
     info_jsonvalue = jsonable_encoder(info)
     return JSONResponse(content=info_jsonvalue)
 
