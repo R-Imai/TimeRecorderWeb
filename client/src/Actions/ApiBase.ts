@@ -28,6 +28,7 @@ export const API = {
     graphFig: "/api/graph/fig",
     subject: "/api/setting/subject",
     activeSubject: "/api/setting/subject/active",
+    exportCsv: "/api/export/record/csv",
   }
 };
 
