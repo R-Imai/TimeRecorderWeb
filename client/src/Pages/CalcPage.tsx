@@ -3,7 +3,7 @@ import { withRouter, RouteComponentProps } from 'react-router';
 import { Link } from 'react-router-dom';
 
 import {getUserInfo, logout} from '../Actions/AuthAction'
-import {calcMonthGraph, calcDaily, getRecord, TaskRecordType, CalcResultType} from '../Actions/RecorderAction';
+import {calcMonthGraphFig, calcDaily, getRecord, TaskRecordType, CalcResultType} from '../Actions/RecorderAction';
 import logo from '../Image/logo.svg';
 import {isApiErrorData} from '../Actions/ApiBase';
 import Indicator from '../Components/Indicator'
@@ -59,17 +59,16 @@ class Calc extends React.Component<RouteComponentProps , State> {
       showIndicator: true
     })
     try {
-      const date = new Date().getTime()
       const response = await Promise.all([
         getUserInfo(),
-        calcMonthGraph(),
+        calcMonthGraphFig(),
       ]);
       const userInfo = response[0];
-      const graphPath = `${response[1].path}?_=${date}`;
+      const figSrc = response[1];
 
       this.setState({
         userInfo: userInfo,
-        graphPath: graphPath,
+        graphPath: figSrc,
       })
     } catch (e) {
       if (isApiErrorData(e)) {
@@ -149,7 +148,7 @@ class Calc extends React.Component<RouteComponentProps , State> {
     return {
       taskSubject: responce.task_subject,
       taskName: responce.task_name,
-      passedSecond: responce.passed_second,
+      passedMinutes: responce.passed_minutes,
       passedTimeStr: responce.passed_time_str,
     };
   }

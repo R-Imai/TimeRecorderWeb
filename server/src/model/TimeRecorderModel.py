@@ -14,7 +14,7 @@ class RecordTask(RunningTask):
     end_time: datetime.datetime
 
 class SummaryData(TaskDetail):
-    passed_second: int
+    passed_minutes: int
     passed_time_str: str
 
 class RegistrationSubject(BaseModel):
@@ -31,7 +31,7 @@ class RecordTaskJoinColor(RecordTask):
 
 class GraphSummaryData(BaseModel):
     task_subject: str
-    passed_second: int
+    passed_minutes: int
     passed_time_str: str
     color: Optional[str] = None
 
