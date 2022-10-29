@@ -61,7 +61,7 @@ def __auth_token(token: str):
 # ルート
 @app.get("/api/", response_model=app_model.AppInfo)
 def root():
-    info = app_model.AppInfo(version="1.0.0")
+    info = app_model.AppInfo(version="1.1.0")
     info_jsonvalue = jsonable_encoder(info)
     return JSONResponse(content=info_jsonvalue)
 
@@ -472,3 +472,21 @@ def delete_subject(subject_id: str, TOKEN: Optional[str] = Cookie(None)):
             status_code=500,
             detail="予期せぬエラーが発生しました。",
         )
+
+@app.get("/api/export/record/csv", tags=["TimeRecorder"])
+def csv_download(start_date: date, end_date: date, TOKEN: Optional[str] = Cookie(None)):
+    user_cd = __auth_token(TOKEN)
+    try :
+        path = recorder_service.csv_download(user_cd, start_date, end_date)
+    except RecorderException as e:
+        raise HTTPException(
+            status_code=e.status_code,
+            detail=str(e),
+        )
+    except Exception as e1:
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=500,
+            detail="予期せぬエラーが発生しました。",
+        )
+    return FileResponse(path, filename=f"{user_cd}-{start_date.year}_{start_date.month}_{start_date.day}-{end_date.year}_{end_date.month}_{end_date.day}.csv")

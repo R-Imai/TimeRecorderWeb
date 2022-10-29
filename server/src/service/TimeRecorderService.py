@@ -3,6 +3,7 @@ import uuid
 import glob
 import pandas as pd
 from typing import List, Tuple, Optional
+from typing import TypeVar
 from datetime import date
 from datetime import datetime
 from datetime import timedelta
@@ -19,7 +20,7 @@ from ..model import TimeRecorderModel as model
 from ..repository import TimeRecorderRepository as repository
 from ..repository import connection
 from ..constant import STORAGE_PATH
-from ..exception import AlreadyExistExeption, AuthenticationException, NotFoundException
+from ..exception import AlreadyExistExeption, AuthenticationException, NotFoundException, IllegalArgumentException
 
 DAY_CHANGE_HOUR = 5
 
@@ -53,6 +54,12 @@ class TimeRecorderService:
         summary_df = group.sum()[["passed_time"]].sort_values("passed_time", ascending=False)
         ret_data = [model.GraphSummaryData(task_subject=index[0], color=index[1] if index[1] != "" else None, passed_minutes=row.passed_time.total_seconds()//60, passed_time_str=self.__timedelta2str(row.passed_time)) for index, row in summary_df.iterrows()]
         return ret_data
+    
+    def __make_csv_data(self, records: List[model.RecordTask]) -> pd.DataFrame:
+        if len(records) == 0:
+            return pd.DataFrame([])
+        df = pd.DataFrame(list(map(lambda r: vars(r), records))).drop("task_id", axis=1).reindex(columns=["task_subject", "task_name", "start_time", "end_time"])
+        return df
 
     def __hex2color(self, hex_c):
         return [int(hex_c[1:3],16)/256.0,int(hex_c[3:5],16)/256.0,int(hex_c[5:7],16)/256.0,1]
@@ -374,3 +381,27 @@ class TimeRecorderService:
             raise e
         finally:
             conn.close()
+    
+    def csv_download(self, user_cd:str, start_date:date, end_date:date):
+        start_time = datetime(start_date.year, start_date.month, start_date.day, hour = DAY_CHANGE_HOUR)
+        end_time = datetime(end_date.year, end_date.month,  end_date.day + 1, hour = DAY_CHANGE_HOUR)
+        try:
+            conn = connection.mk_connection()
+            with conn.cursor() as cur:
+                records = self.repository.get_task_records(cur, user_cd, start_time, end_time)
+                conn.commit()
+        except Exception as e:
+            conn.rollback()
+            raise e
+        finally:
+            conn.close()
+        df = self.__make_csv_data(records)
+        save_dir = f"{STORAGE_PATH}/tmp/{user_cd}"
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        for path in glob.glob(f"{save_dir}/*.csv"):
+            os.remove(path)
+        id = str(uuid.uuid4())[-12:]
+        save_path = f"{save_dir}/{id}.csv"
+        df.to_csv(save_path, index=False)
+        return save_path

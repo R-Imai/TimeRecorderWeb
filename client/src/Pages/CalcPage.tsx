@@ -3,7 +3,7 @@ import { withRouter, RouteComponentProps } from 'react-router';
 import { Link } from 'react-router-dom';
 
 import {getUserInfo, logout} from '../Actions/AuthAction'
-import {calcMonthGraphFig, calcDaily, getRecord, TaskRecordType, CalcResultType} from '../Actions/RecorderAction';
+import {calcMonthGraphFig, calcDaily, getRecord, exportCsv, TaskRecordType, CalcResultType} from '../Actions/RecorderAction';
 import logo from '../Image/logo.svg';
 import {isApiErrorData} from '../Actions/ApiBase';
 import Indicator from '../Components/Indicator'
@@ -27,6 +27,15 @@ type State = {
   showCopyMsg: boolean;
   recordSummary: recordSummaryType[];
   calcTaskSummaryDate: string;
+  exportStartDate: string;
+  exportEndDate: string;
+}
+
+function formatDate(dt: Date) {
+  var y = dt.getFullYear();
+  var m = ('00' + (dt.getMonth()+1)).slice(-2);
+  var d = ('00' + dt.getDate()).slice(-2);
+  return (y + '-' + m + '-' + d);
 }
 
 class Calc extends React.Component<RouteComponentProps , State> {
@@ -34,6 +43,10 @@ class Calc extends React.Component<RouteComponentProps , State> {
     super(props);
     
     document.title = "TimeRecorder | 集計";
+
+    const now = new Date();
+    const exportStartDate = new Date();
+    exportStartDate.setMonth(exportStartDate.getMonth() - 1);
 
     this.state = {
       graphPath: '',
@@ -45,9 +58,12 @@ class Calc extends React.Component<RouteComponentProps , State> {
       showCopyMsg: false,
       recordSummary: [],
       calcTaskSummaryDate: '',
+      exportStartDate: formatDate(exportStartDate),
+      exportEndDate: formatDate(now),
     };
     this.logout = this.logout.bind(this);
     this.onClickCalcDaily = this.onClickCalcDaily.bind(this);
+    this.exportCsv = this.exportCsv.bind(this);
   }
 
   async componentDidMount() {
@@ -153,6 +169,22 @@ class Calc extends React.Component<RouteComponentProps , State> {
     };
   }
 
+  async exportCsv(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+    e.preventDefault();
+    if (this.state.exportStartDate === '' || this.state.exportEndDate === '') {
+      return;
+    }
+
+    this.setState({
+      showIndicator: true,
+    });
+    await exportCsv(this.state.exportStartDate, this.state.exportEndDate);
+    this.setState({
+      showIndicator: false,
+    });
+
+  }
+
   render() {
     
     const logoutDialogElem = this.state.showLogoutDialog ? (
@@ -207,6 +239,13 @@ class Calc extends React.Component<RouteComponentProps , State> {
           <h2>今月の稼働状況</h2>
           <img src={this.state.graphPath} alt="今月の稼働割合グラフ"/>
         </div>
+        <h2>業務記録エクスポート</h2>
+        <form className="calc-date-input">
+          <input value={this.state.exportStartDate} type="date" onChange={(e) => {this.setState({exportStartDate: e.target.value})}}/>
+          ～
+          <input value={this.state.exportEndDate} type="date" onChange={(e) => {this.setState({exportEndDate: e.target.value})}}/>
+          <button onClick={this.exportCsv}>エクスポート</button>
+        </form>
         {logoutDialogElem}
         {userSettingDialogElem}
         <Indicator show={this.state.showIndicator} />

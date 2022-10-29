@@ -135,3 +135,17 @@ export async function calcMonthGraphFig() {
   const imgStr = btoa(binaryData);
   return `data:image/png;base64,${imgStr}`;
 }
+
+export async function exportCsv(startDate: string, endDate: string) {
+  const fileName = `${startDate}_${endDate}.csv`
+  await axios.get<Blob>(`${API.UrlBase}${API.Recorder.exportCsv}`, {responseType: "blob", params: {start_date: startDate, end_date: endDate}}).then(
+    (response) => {
+      const fileURL = window.URL.createObjectURL(new Blob([response.data]));
+      const fileLink = document.createElement('a');
+      fileLink.href = fileURL;
+      fileLink.setAttribute('download', fileName);
+      document.body.appendChild(fileLink);
+      fileLink.click();
+      document.body.removeChild(fileLink);
+  }).catch((e) => {throw e})
+}
