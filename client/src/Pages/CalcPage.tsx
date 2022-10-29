@@ -31,11 +31,22 @@ type State = {
   exportEndDate: string;
 }
 
+function formatDate(dt: Date) {
+  var y = dt.getFullYear();
+  var m = ('00' + (dt.getMonth()+1)).slice(-2);
+  var d = ('00' + dt.getDate()).slice(-2);
+  return (y + '-' + m + '-' + d);
+}
+
 class Calc extends React.Component<RouteComponentProps , State> {
   constructor(props: RouteComponentProps) {
     super(props);
     
     document.title = "TimeRecorder | 集計";
+
+    const now = new Date();
+    const exportStartDate = new Date();
+    exportStartDate.setMonth(exportStartDate.getMonth() - 1);
 
     this.state = {
       graphPath: '',
@@ -47,8 +58,8 @@ class Calc extends React.Component<RouteComponentProps , State> {
       showCopyMsg: false,
       recordSummary: [],
       calcTaskSummaryDate: '',
-      exportStartDate: '',
-      exportEndDate: '',
+      exportStartDate: formatDate(exportStartDate),
+      exportEndDate: formatDate(now),
     };
     this.logout = this.logout.bind(this);
     this.onClickCalcDaily = this.onClickCalcDaily.bind(this);

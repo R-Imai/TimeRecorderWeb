@@ -20,9 +20,8 @@ from ..model import TimeRecorderModel as model
 from ..repository import TimeRecorderRepository as repository
 from ..repository import connection
 from ..constant import STORAGE_PATH
-from ..exception import AlreadyExistExeption, AuthenticationException, NotFoundException
+from ..exception import AlreadyExistExeption, AuthenticationException, NotFoundException, IllegalArgumentException
 
-PandasDataFrame = TypeVar('pandas.core.frame.DataFrame')
 DAY_CHANGE_HOUR = 5
 
 class TimeRecorderService:
@@ -56,9 +55,9 @@ class TimeRecorderService:
         ret_data = [model.GraphSummaryData(task_subject=index[0], color=index[1] if index[1] != "" else None, passed_minutes=row.passed_time.total_seconds()//60, passed_time_str=self.__timedelta2str(row.passed_time)) for index, row in summary_df.iterrows()]
         return ret_data
     
-    def __make_csv_data(self, records: List[model.RecordTask]) -> PandasDataFrame:
+    def __make_csv_data(self, records: List[model.RecordTask]) -> pd.DataFrame:
         if len(records) == 0:
-            return []
+            return pd.DataFrame([])
         df = pd.DataFrame(list(map(lambda r: vars(r), records))).drop("task_id", axis=1).reindex(columns=["task_subject", "task_name", "start_time", "end_time"])
         return df
 
