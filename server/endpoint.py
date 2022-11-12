@@ -473,6 +473,7 @@ def delete_subject(subject_id: str, TOKEN: Optional[str] = Cookie(None)):
             detail="予期せぬエラーが発生しました。",
         )
 
+# csvエクスポート
 @app.get("/api/export/record/csv", tags=["TimeRecorder"])
 def csv_download(start_date: date, end_date: date, TOKEN: Optional[str] = Cookie(None)):
     user_cd = __auth_token(TOKEN)
@@ -490,3 +491,22 @@ def csv_download(start_date: date, end_date: date, TOKEN: Optional[str] = Cookie
             detail="予期せぬエラーが発生しました。",
         )
     return FileResponse(path, filename=f"{user_cd}-{start_date.year}_{start_date.month}_{start_date.day}-{end_date.year}_{end_date.month}_{end_date.day}.csv")
+
+# グループ集計データ取得
+@app.post("/api/group/{group_cd}/graph/summary", response_model=List[tr_model.GroupSummaryDataResponse], tags=["TimeRecorder"])
+def group_graph_save(post_param: tr_model.GroupGraphSaveParam, group_cd: str, TOKEN: Optional[str] = Cookie(None)):
+    user_cd = __auth_token(TOKEN)
+    try:
+        save_path, data = recorder_service.group_summary(user_cd, group_cd, post_param.start_date, post_param.end_date, post_param.filename, post_param.is_summary_other_task)
+    except RecorderException as e:
+        raise HTTPException(
+            status_code=e.status_code,
+            detail=str(e),
+        )
+    except Exception as e1:
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=500,
+            detail="予期せぬエラーが発生しました。",
+        )
+    return __mk_responce_json(tr_model.GroupSummaryDataResponse(data = data, path = save_path))

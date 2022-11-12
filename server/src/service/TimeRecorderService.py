@@ -50,10 +50,28 @@ class TimeRecorderService:
         df = pd.DataFrame(list(map(lambda r: vars(r), records))).drop("task_name", axis=1)
         df["passed_time"] = df["end_time"] - df["start_time"]
         df = df.fillna({"color": ""})
+        # 色指定ない「その他」はグレーにする
+        df.loc[(df["task_subject"] == "その他") & (df["color"] == ""), ["color"]] = "#999999"
         group = df.groupby(["task_subject", "color"])
         summary_df = group.sum()[["passed_time"]].sort_values("passed_time", ascending=False)
+
+        # その他を末尾に移動
+        summary_df = pd.concat([summary_df.query("task_subject != 'その他'"), summary_df.query("task_subject == 'その他'")])
+        
         ret_data = [model.GraphSummaryData(task_subject=index[0], color=index[1] if index[1] != "" else None, passed_minutes=row.passed_time.total_seconds()//60, passed_time_str=self.__timedelta2str(row.passed_time)) for index, row in summary_df.iterrows()]
         return ret_data
+    
+    def __merge_group_subj_info(self, records: List[model.RecordTaskJoinColor], group_subject_info: List[model.GroupSubject], is_summary_other_task: bool) -> List[model.RecordTaskJoinColor]:
+        if len(records) == 0:
+            return []
+        record_df = pd.DataFrame(list(map(lambda r: vars(r), records))).drop("color", axis=1)
+        subject_info_df = pd.DataFrame(list(map(lambda i: vars(i), group_subject_info)))
+
+        return_df = pd.merge(record_df, subject_info_df, how="left", left_on="task_subject", right_on="name").loc[:,["task_id", "task_subject", "task_name", "name", "start_time", "end_time", "color"]]
+        return_df = return_df.fillna({"color": "", "name": "その他"})
+        
+        return [model.RecordTaskJoinColor(task_id=row.task_id, task_subject=row.task_subject if is_summary_other_task else row["name"], task_name=row.task_name, start_time=row.start_time, end_time=row.end_time, color=row.color if row.color != "" else None) for index, row in return_df.iterrows()]
+
     
     def __make_csv_data(self, records: List[model.RecordTask]) -> pd.DataFrame:
         if len(records) == 0:
@@ -384,7 +402,7 @@ class TimeRecorderService:
     
     def csv_download(self, user_cd:str, start_date:date, end_date:date):
         start_time = datetime(start_date.year, start_date.month, start_date.day, hour = DAY_CHANGE_HOUR)
-        end_time = datetime(end_date.year, end_date.month,  end_date.day + 1, hour = DAY_CHANGE_HOUR)
+        end_time = datetime(end_date.year, end_date.month, end_date.day, hour = DAY_CHANGE_HOUR) + timedelta(days=1)
         try:
             conn = connection.mk_connection()
             with conn.cursor() as cur:
@@ -405,3 +423,39 @@ class TimeRecorderService:
         save_path = f"{save_dir}/{id}.csv"
         df.to_csv(save_path, index=False)
         return save_path
+    
+    def group_summary(self, user_cd: str, group_cd: str, start_date:date, end_date:date, filename:str, is_summary_other_task:bool=False):
+        start_time = datetime(start_date.year, start_date.month, start_date.day, hour = DAY_CHANGE_HOUR)
+        end_time = datetime(end_date.year, end_date.month, end_date.day, hour = DAY_CHANGE_HOUR) + timedelta(days=1)
+        try:
+            conn = connection.mk_connection()
+            with conn.cursor() as cur:
+                records = self.repository.get_task_records_group(cur, group_cd, start_time, end_time)
+                subject_info = self.repository.get_group_subjects(cur, group_cd)
+                conn.commit()
+        except Exception as e:
+            conn.rollback()
+            raise e
+        finally:
+            conn.close()
+        # TODO 第三引数
+        merge_data = self.__merge_group_subj_info(records, subject_info, is_summary_other_task)
+        summary_data = self.__calc_graph_data(merge_data)
+
+        if filename is None:
+            filename = f"{start_time.year}_{start_time.month}_{start_time.day}-{end_time.year}_{end_time.month}_{end_time.day}"
+        save_dir = f"{STORAGE_PATH}/graph/{user_cd}"
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        for path in glob.glob(f"{save_dir}/{filename}*.png"):
+            os.remove(path)
+        id = str(uuid.uuid4())[-12:]
+        save_path = f"{save_dir}/{filename}-{id}.png"
+        self.__plot_data(summary_data, save_path)
+        return save_path, summary_data
+
+    def add_group(self, group_cd: str, group_name:str):
+        pass
+
+    def add_group_user(self, group_cd: str, user_cd: str):
+        pass

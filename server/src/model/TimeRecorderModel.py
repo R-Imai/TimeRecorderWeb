@@ -38,3 +38,19 @@ class GraphSummaryData(BaseModel):
 class ResponceGraphSummary(BaseModel):
     path: str
     data: List[GraphSummaryData]
+
+class GroupSummaryDataResponse(BaseModel):
+    data: List[GraphSummaryData]
+    path: str
+
+class GroupGraphSaveParam(BaseModel):
+    start_date:datetime.date
+    end_date:datetime.date
+    filename:Optional[str]
+    is_summary_other_task:Optional[bool]
+
+class GroupSubject(BaseModel):
+    subject_id: str
+    name: str
+    is_active: bool
+    color: str

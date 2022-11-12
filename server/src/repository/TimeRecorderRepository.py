@@ -140,6 +140,36 @@ class TimeRecorderRepository:
             ORDER BY sort_val ASC
             """
         self.sql_delete_subject = "DELETE FROM task_subject_config WHERE user_cd = %(user_cd)s AND subject_id = %(subject_id)s;"
+        self.sql_get_task_records_group = """
+            SELECT
+              task_record.task_id,
+              task_record.start_time,
+              task_record.end_time,
+              task_record.task_subject,
+              task_record.task_name
+            FROM
+              task_record
+              LEFT OUTER JOIN group_user
+                ON group_user.user_cd = task_record.user_cd
+            WHERE group_user.group_cd = %(group_cd)s
+                AND %(start_time)s <= task_record.start_time
+                AND task_record.start_time <= %(end_time)s;
+            """
+        self.sql_add_group = "INSERT INTO user_group (group_cd, group_name) VALUES (%(group_cd)s, %(group_name)s)"
+        self.sql_get_group = "SELECT group_cd, group_name FROM user_group WHERE group_cd = %(group_cd)s"
+        self.sql_add_group_user = "INSERT INTO group_user (group_cd, user_cd) VALUES (%(group_cd)s, %(user_cd)s)"
+        self.sql_add_group_subject = "INSERT INTO group_subject (group_cd, subject_id, name, is_active, color) VALUES (%(group_cd)s, %(subject_id)s, %(name)s, %(is_active)s, %(color)s)"
+        self.sql_get_group_subjects = """
+            SELECT
+                subject_id,
+                name,
+                is_active,
+                color
+            FROM
+                group_subject
+            WHERE
+                group_cd = %(group_cd)s
+            """
 
     def get_running_task(self, cur, user_cd: str) -> model.RunningTask:
         cur.execute(self.sql_get_running_task, (user_cd,))
@@ -277,3 +307,44 @@ class TimeRecorderRepository:
         )
         cur.execute(self.sql_delete_subject, query_param)
 
+    def get_task_records_group(self, cur, group_cd:str, start_time:datetime.datetime, end_time:datetime.datetime) -> List[model.RecordTaskJoinColor]:
+        query_param = dict(
+            group_cd = group_cd,
+            start_time = start_time,
+            end_time = end_time
+        )
+        cur.execute(self.sql_get_task_records_group, query_param)
+        rows = cur.fetchall()
+        return list(map(lambda x: model.RecordTaskJoinColor(task_id=x[0], start_time=x[1], end_time=x[2], task_subject=x[3], task_name=x[4]), rows))
+
+    def add_group(self, cur, group_cd: str, group_name: str) -> None:
+        query_param = dict(
+            group_cd = group_cd,
+            group_name = group_name
+        )
+        cur.execute(self.sql_add_group, query_param)
+
+    def add_group_user(self, cur, group_cd: str, user_cd: str) -> None:
+        query_param = dict(
+            group_cd = group_cd,
+            user_cd = user_cd
+        )
+        cur.execute(self.sql_add_group_user, query_param)
+    
+    def add_group_subject(self, cur, group_cd: str, subject_id: str, name: str, is_active: bool, color: str) -> None:
+        query_param = dict(
+            group_cd = group_cd,
+            subject_id = subject_id,
+            name = name,
+            is_active = is_active,
+            color = color
+        )
+        cur.execute(self.sql_add_group_subject, query_param)
+    
+    def get_group_subjects(self, cur, group_cd: str) -> List[model.GroupSubject]:
+        query_param = dict(
+            group_cd = group_cd
+        )
+        cur.execute(self.sql_get_group_subjects, query_param)
+        rows = cur.fetchall()
+        return list(map(lambda x: model.GroupSubject(subject_id=x[0], name=x[1], is_active=x[2], color=x[3]), rows))

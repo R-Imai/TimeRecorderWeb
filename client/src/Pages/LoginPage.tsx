@@ -77,7 +77,7 @@ class LoginForm extends React.Component<RouteComponentProps , State> {
           showIndicator: false,
         });
       } else {
-        console.error(e.message);
+        // console.error(e.message);
         this.setState({
           isError: true,
           errMsg: 'エラーが発生しました',
