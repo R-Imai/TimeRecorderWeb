@@ -323,6 +323,16 @@ class TimeRecorderRepository:
             group_name = group_name
         )
         cur.execute(self.sql_add_group, query_param)
+    
+    def get_group(self, cur, group_cd: str) -> None:
+        query_param = dict(
+            group_cd = group_cd
+        )
+        cur.execute(self.sql_get_group, query_param)
+        res = cur.fetchone()
+        if res is None:
+            return None
+        return (res[0], model.SubjectConfigData(subject_id=res[1], name=res[2], color=res[3], sort_val=res[4], is_active=res[5]))
 
     def add_group_user(self, cur, group_cd: str, user_cd: str) -> None:
         query_param = dict(
@@ -348,3 +358,4 @@ class TimeRecorderRepository:
         cur.execute(self.sql_get_group_subjects, query_param)
         rows = cur.fetchall()
         return list(map(lambda x: model.GroupSubject(subject_id=x[0], name=x[1], is_active=x[2], color=x[3]), rows))
+

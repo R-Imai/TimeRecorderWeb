@@ -54,3 +54,7 @@ class GroupSubject(BaseModel):
     name: str
     is_active: bool
     color: str
+
+class Group(BaseModel):
+    group_cd: str
+    group_name: str
