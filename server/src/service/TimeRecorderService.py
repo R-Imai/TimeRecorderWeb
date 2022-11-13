@@ -456,6 +456,17 @@ class TimeRecorderService:
 
     def add_group(self, group_cd: str, group_name:str):
         pass
+        # subj_data = model.SubjectConfigData(subject_id=id, name=param.name, color=param.color, sort_val=param.sort_val, is_active=param.is_active)
+        # try:
+        #     conn = connection.mk_connection()
+        #     with conn.cursor() as cur:
+        #         self.repository.set_task_subject(cur, user_cd, subj_data)
+        #         conn.commit()
+        # except Exception as e:
+        #     conn.rollback()
+        #     raise e
+        # finally:
+        #     conn.close()
 
     def add_group_user(self, group_cd: str, user_cd: str):
         pass
