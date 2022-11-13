@@ -29,6 +29,10 @@ type State = {
   calcTaskSummaryDate: string;
   exportStartDate: string;
   exportEndDate: string;
+  figreTargetDate: {
+    year: number;
+    month: number;
+  }
 }
 
 function formatDate(dt: Date) {
@@ -60,10 +64,15 @@ class Calc extends React.Component<RouteComponentProps , State> {
       calcTaskSummaryDate: '',
       exportStartDate: formatDate(exportStartDate),
       exportEndDate: formatDate(now),
+      figreTargetDate: {
+        year: now.getFullYear(),
+        month: now.getMonth() + 1,
+      }
     };
     this.logout = this.logout.bind(this);
     this.onClickCalcDaily = this.onClickCalcDaily.bind(this);
     this.exportCsv = this.exportCsv.bind(this);
+    this.getFigure = this.getFigure.bind(this);
   }
 
   async componentDidMount() {
@@ -77,7 +86,7 @@ class Calc extends React.Component<RouteComponentProps , State> {
     try {
       const response = await Promise.all([
         getUserInfo(),
-        calcMonthGraphFig(),
+        calcMonthGraphFig(this.state.figreTargetDate),
       ]);
       const userInfo = response[0];
       const figSrc = response[1];
@@ -147,6 +156,19 @@ class Calc extends React.Component<RouteComponentProps , State> {
       showIndicator: false,
       dailyTask: response[0].map((v) => {return this.convertTodaysTaskResponce(v)}),
       recordSummary: response[1].map((v) => {return this.convertCalcResultResponce(v)}),
+    })
+  }
+
+  async getFigure(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
+    e.preventDefault();
+
+    this.setState({
+      showIndicator: true,
+    })
+    const response = await calcMonthGraphFig(this.state.figreTargetDate);
+    this.setState({
+      showIndicator: false,
+      graphPath: response,
     })
   }
 
@@ -236,7 +258,11 @@ class Calc extends React.Component<RouteComponentProps , State> {
           </div>
         </div>
         <div className="image-space">
-          <h2>今月の稼働状況</h2>
+          <h2>稼働状況グラフ</h2>
+          <form className="calc-date-input">
+            <input className="fig-year" value={this.state.figreTargetDate.year} type="number" min="2021" width="4" onChange={(e) => {this.setState({figreTargetDate: {...this.state.figreTargetDate, year: parseInt(e.target.value)}})}}/>年<input className="fig-month" value={this.state.figreTargetDate.month} type="number" min="1" max="12" onChange={(e) => {this.setState({figreTargetDate: {...this.state.figreTargetDate, month: parseInt(e.target.value)}})}}/>月
+            <button onClick={this.getFigure}>グラフ取得</button>
+          </form>
           <img src={this.state.graphPath} alt="今月の稼働割合グラフ"/>
         </div>
         <h2>業務記録エクスポート</h2>

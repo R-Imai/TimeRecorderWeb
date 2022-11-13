@@ -1529,6 +1529,7 @@ button {
     font-size: 1rem;
     padding: 0rem 0.5rem;
     border-radius: 0.5rem;
+    margin-left: 0.5rem;
     &:hover, &:focus {
       color: #fafafa;
     }
@@ -1561,5 +1562,13 @@ button {
     &:hover::after {
       transform: scale(1, 1);
     }
+  }
+  .fig-year{
+    width: 4rem;
+    margin-right: 0;
+  }
+  .fig-month {
+    width: 2rem;
+    margin-right: 0;
   }
 }

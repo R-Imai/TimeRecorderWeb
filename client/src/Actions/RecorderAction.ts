@@ -40,6 +40,11 @@ export type CalcGraphSummaryType = {
   color: string,
 }
 
+type figreTargetDate = {
+  year: number,
+  month: number,
+}
+
 export const DAY_CHANGE_HOUR = 5;
 
 export async function getActiveSubjects() {
@@ -120,12 +125,16 @@ export async function calcMonthGraph() {
   return responce.data;
 }
 
-export async function calcMonthGraphFig() {
+export async function calcMonthGraphFig(targetDate?: figreTargetDate) {
   const now = new Date();
   if (now.getHours() < DAY_CHANGE_HOUR) {
     now.setDate(now.getDate() - 1)
   }
-  const dateStr = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
+  const target = typeof targetDate === 'undefined' ? {
+    year: now.getFullYear(),
+    month: now.getMonth() + 1,
+  }: targetDate
+  const dateStr = `${target.year}-${target.month}-01`;
   const responce = await axios.get<ArrayBuffer>(`${API.UrlBase}${API.Recorder.graphFig}`, {responseType: "arraybuffer", params: {target: dateStr}}).catch((e) => {throw e})
   const bytes  = new Uint8Array(responce.data);
   let binaryData = '';
