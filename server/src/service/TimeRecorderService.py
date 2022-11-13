@@ -384,7 +384,7 @@ class TimeRecorderService:
     
     def csv_download(self, user_cd:str, start_date:date, end_date:date):
         start_time = datetime(start_date.year, start_date.month, start_date.day, hour = DAY_CHANGE_HOUR)
-        end_time = datetime(end_date.year, end_date.month,  end_date.day + 1, hour = DAY_CHANGE_HOUR)
+        end_time = datetime(end_date.year, end_date.month, end_date.day, hour = DAY_CHANGE_HOUR) + timedelta(days=1)
         try:
             conn = connection.mk_connection()
             with conn.cursor() as cur:
